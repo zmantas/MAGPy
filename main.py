@@ -24,5 +24,23 @@ References describing the MAGMA code:
 
 '''
 
+import sys
+import numpy as np
+from model_comp import model_comp
+from simulation import simulation
 
+
+def main():
+
+    # Loading initial composition
+    input_fname = 'input/Moon.dat'
+    model = model_comp(input_fname)
+    model.print()
+
+    # Start simulation
+    sim = simulation()
+    sim.start(model)
+
+if __name__ == "__main__":
+    sys.exit(main())
 
