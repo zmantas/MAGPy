@@ -32,14 +32,20 @@ from simulation import simulation
 
 def main():
 
-    # Loading initial composition
-    input_fname = 'input/Moon.dat'
+    ''' File names '''
+    input_fname = 'input/initial-composition.dat'
+    output_fname = 'output/MAGMA.OUT'
+
+    ''' Loading initial composition '''
     model = model_comp(input_fname)
     model.print()
 
-    # Start simulation
-    sim = simulation()
-    sim.start(model)
+    ''' Start simulation '''
+    sim = simulation(model)
+    sim.start()
+
+    ''' Write to output ''' 
+    sim.write_to_output(output_fname)
 
 if __name__ == "__main__":
     sys.exit(main())

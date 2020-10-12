@@ -1,0 +1,36 @@
+INITIAL PARAMETERS AND COMPOSITION
+Magma composition:
+ 
+Oxide     WT%          Mole%
+SiO2      47.100       0.46883
+MgO       26.600       0.39471
+Al2O3     4.040        0.02370
+TiO2      0.240        0.00180
+Fe2O3     12.800       0.04794
+FeO       0.000        0.00000
+CaO       5.440        0.05802
+Na2O      0.460        0.00444
+K2O       0.090        0.00057
+Total     96.770       1.00000
+
+Oxide Mole Fraction (F) in Silicate
+ 
+Si = 0.44738
+Mg = 0.37666
+Al = 0.02261
+Ti = 0.00172
+Fe = 0.09149
+Ca = 0.05536
+Na = 0.00424
+K  = 0.00055
+
+Relative atomic abundances of metals
+ 
+Si = 0.43545
+Mg = 0.36661
+Al = 0.04402
+Ti = 0.00167
+Fe = 0.08905
+Ca = 0.05389
+Na = 0.00825
+K  = 0.00106

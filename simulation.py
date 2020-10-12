@@ -4,10 +4,14 @@ class simulation():
     ''' 
     Initialises the vaporisation simulation.
     '''
-    def __init__(self):
+    def __init__(self,model_composition):
 
+        ''' File names ''' 
+        mwOxides_fname = 'data/weights_oxides.csv'
+        wMetals_fname = 'data/weights_metals.csv'
+        
         '''Constants'''
-        self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number densities
+        self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number         densities
                                             # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
         self._avog = 6.023e23 # Avogadro's number
 
@@ -19,11 +23,9 @@ class simulation():
         self.iFirst = 0
         self.T = 2000   # temperature of magma (Kelvin)
         self.perVap = 0 # number of iterations of vaporization process
+        self.comp = 0 # counting factor
 
         '''Importing molecular oxide and metal weights'''
-        mwOxides_fname = 'data/weights_oxides.csv'
-        wMetals_fname = 'data/weights_metals.csv'
-
         self._mwOxides = dict(np.genfromtxt(mwOxides_fname,delimiter= ',',names=True,skip_header=1,\
                                  dtype=None, encoding = 'UTF-8'))
         self._wMetals = dict(np.genfromtxt(wMetals_fname,delimiter= ',',names=True,skip_header=1,\
@@ -32,20 +34,17 @@ class simulation():
         # Evaluating the multiplications and dividing by _avog (mol wt. in g/mole)
         self._wMetals.update((x, eval(y)/self._avog) for x, y in self._wMetals.items()) 
 
-    # end __init__()
-
-    def start(self,model_comp):
-
         ''' Calculating number of moles of the oxides calculated from the input composition '''
         
         # Total weight
-        self.totWt = sum(model_comp.wt_oxides.values())
+        self.wt_oxides = model_composition.wt_oxides
+        self.totWt = sum(self.wt_oxides.values())
         
         # Number of moles per oxide
         self.numMolOx = {}
         for ox in self._mwOxides:
-            if model_comp.wt_oxides[ox] != 0: # Avoiding div by 0 error
-                self.numMolOx[ox] = self._mwOxides[ox] / model_comp.wt_oxides[ox]
+            if self.wt_oxides[ox] != 0: # Avoiding div by 0 error
+                self.numMolOx[ox] = self.wt_oxides[ox] / self._mwOxides[ox]
             else: 
                 self.numMolOx[ox] = 0
 
@@ -55,7 +54,7 @@ class simulation():
         # Mole percentages of the oxides
         self.mPerc = {}
         for ox in self.numMolOx:
-            if model_comp.wt_oxides[ox] != 0: # Avoiding div by 0 error
+            if self.wt_oxides[ox] != 0: # Avoiding div by 0 error
                 self.mPerc[ox] = self.numMolOx[ox] / self.totMol
             else:
                 self.mPerc[ox] = 0
@@ -90,6 +89,53 @@ class simulation():
             self.abEl['Na'] = self.numMolOx['Na2O'] * 2 * self._avog
             self.abEl['K']  = self.numMolOx['K2O']  * 2 * self._avog  
 
+        ''' Renomarlizing the abundances ''' 
+
+        # Total atomic abundance of all the elements (except 0)
+        self.abETot = sum(self.abEl.values())
+        # Molecular abundance of all the oxides
+        self.abETot1 = self.abEl['Si'] + \
+                  self.abEl['Mg'] + \
+                  self.abEl['Fe'] + \
+                  self.abEl['Ca'] + \
+                  0.5 * self.abEl['Al'] + \
+                  self.abEl['Ti'] + \
+                  0.5 * self.abEl['Na'] + \
+                  0.5 * self.abEl['K'] # May have to check if halving these values is ok
+
+        ''' 
+        Relative abundances of the metals (by molecule and atom) in the mantle 
+        (same as oxide mole fractions in the magma)
+        ''' 
+        self.fAbMolecule = {} # Relative abundance of the metals per molecule
+        self.fAbAtom = {}     # Relative abundance of the metals per atom
+
+        for ox in self.abEl:
+            if ox in ['Al','Na','K']: # Halves values for Al, Na and K
+                self.fAbMolecule [ox] = 0.5 * self.abEl[ox] / self.abETot1
+            else:   
+                self.fAbMolecule [ox] = self.abEl[ox] / self.abETot1
+            self.fAbAtom[ox] = self.abEl[ox] / self.abETot
+
+        ''' Setting initial values of key pressures and adjustment factors for gases '''
+        self.kPres = {}  # key pressures
+        self.adjFact = {} # adjustment factors
+        self.gas_names = ['SiO','O2','MgO','Fe','Ca','Al','Ti','Na','K']
+        for gas in self.gas_names:
+            self.kPres[gas] = 1
+            self.adjFact[gas] = 1
+        
+        ''' Setting inital values of gamma (activity coefficient)'''
+        self.gamma = {}  # activity coefficient - gamma
+        self.liquid_names = ['Si','Mg','Fe','Fe3','Ca','Al','Ti','Na','K'] # TODO: Check name
+        for liquid in self.liquid_names: 
+            self.gamma[liquid] = 1 # TODO: May have to do same for second parameter (l318 in og code)
+
+    # end __init__()
+
+    def start(self):
+        pass
+
     # end start()
 
     def set_temp(self,T):
@@ -103,5 +149,36 @@ class simulation():
         print(f'Number of vaporization permutations set to {self.perVap}')
 
     # end set_perVap()
+
+    def write_to_output(self,output_fname):
+
+        ''' Opening the file '''
+        print(f'Writing output to: {output_fname}')
+        file = open(output_fname, "w")
+
+        ''' Printing output to file ''' 
+        file.write(f'INITIAL PARAMETERS AND COMPOSITION\n')
+
+        ''' Magma composition ''' 
+        file.write(f'Magma composition:\n \n')
+        file.write(f'Oxide     WT%          Mole%\n')
+        for ox in self.wt_oxides:
+            file.write(f'{ox:<6}    {self.wt_oxides[ox]:<9.3f}    {self.mPerc[ox]:.5f}\n') 
+        file.write(f'Total     {self.totWt:<9.3f}    {self.totPerc:.5f}\n')
+
+        ''' Oxide Mole fraction in silicate '''
+        file.write(f'\nOxide Mole Fraction (F) in Silicate\n \n')
+        for name in self.fAbMolecule:
+            file.write(f'{name:<3}= {self.fAbMolecule[name]:.5f}\n') 
+
+        ''' Relative atomic abundances of metals '''
+        file.write(f'\nRelative atomic abundances of metals\n \n')
+        for name in self.fAbAtom:
+            file.write(f'{name:<3}= {self.fAbAtom[name]:.5f}\n')
+
+        ''' Closing the file ''' 
+        file.close()
+
+    # end write_to_output()
 
 # end simulations()
