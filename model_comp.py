@@ -9,15 +9,26 @@ class model_comp():
         self.input_fname = input_fname
 
         ''' Defining oxide names '''
-        self._oxide_names = "SiO2",\
-                            "MgO",\
-                            "Al2O3",\
-                            "TiO2",\
-                            "Fe2O3",\
-                            "FeO",\
-                            "CaO",\
-                            "Na2O",\
-                            "K2O"
+        self._oxideNames = 'SiO2',\
+                            'MgO',\
+                            'Al2O3',\
+                            'TiO2',\
+                            'Fe2O3',\
+                            'FeO',\
+                            'CaO',\
+                            'Na2O',\
+                            'K2O'
+        
+        ''' Defining metal names '''
+        self._metalNames = 'Si',\
+                            'Mg',\
+                            'Al',\
+                            'Ti',\
+                            'Fe',\
+                            'Fe3',\
+                            'Ca',\
+                            'Na',\
+                            'K'
 
         ''' Reading data from input file '''
         print(f'Reading input data from: {input_fname}')
@@ -25,7 +36,7 @@ class model_comp():
         
         # Assigning wt values to corresponding oxide names
         self.wt_oxides = {}
-        for i,name in enumerate(self._oxide_names):
+        for i,name in enumerate(self._oxideNames):
             self.wt_oxides[name] = np.float(model[i])
 
     # end __init__()

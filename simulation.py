@@ -25,6 +25,10 @@ class simulation():
         self.perVap = 0 # number of iterations of vaporization process
         self.comp = 0 # counting factor
 
+        ''' Importing metal and oxide name lists from '''
+        self._metalNames = model_composition._metalNames
+        self._oxideNames = model_composition._oxideNames
+
         '''Importing molecular oxide and metal weights'''
         self._mwOxides = dict(np.genfromtxt(mwOxides_fname,delimiter= ',',names=True,skip_header=1,\
                                  dtype=None, encoding = 'UTF-8'))
@@ -134,8 +138,26 @@ class simulation():
     # end __init__()
 
     def start(self):
-        pass
 
+        # SOME LOOP SHOULD START HERE
+        self.comp += 1 # Update counter (could possibly be made obselete by loop)
+
+        ''' 
+        Activities of oxides in the melt:
+        - formula: activity = molecular abundance * activity coefficient
+        '''
+        self.actOx = {}
+        for i,metal in enumerate(self._metalNames):
+            if metal != 'Fe3':
+                self.actOx[self._oxideNames[i]] = self.fAbMolecule[metal] * self.gamma[metal]
+            else:
+            # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
+                if self.comp == 1:
+                    self.actOx['Fe2O3'] = 0
+                else:
+                    pass # TODO: This variable needs to be defined 
+                    # self.actOx['Fe2O3'] = PFE2O3L * self.gamma['Fe3']
+        
     # end start()
 
     def set_temp(self,T):
