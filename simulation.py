@@ -1,4 +1,5 @@
 import numpy as np
+from data.thermodynamic_data import thermodynamic_data
 
 class simulation():
     ''' 
@@ -9,7 +10,11 @@ class simulation():
         ''' File names ''' 
         mwOxides_fname = 'data/weights_oxides.csv'
         wMetals_fname = 'data/weights_metals.csv'
-        
+
+        ''' Importing metal and oxide name lists from '''
+        self._metalNames = model_composition._metalNames
+        self._oxideNames = model_composition._oxideNames
+
         '''Constants'''
         self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number         densities
                                             # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
@@ -24,10 +29,6 @@ class simulation():
         self.T = 2000   # temperature of magma (Kelvin)
         self.perVap = 0 # number of iterations of vaporization process
         self.comp = 0 # counting factor
-
-        ''' Importing metal and oxide name lists from '''
-        self._metalNames = model_composition._metalNames
-        self._oxideNames = model_composition._oxideNames
 
         '''Importing molecular oxide and metal weights'''
         self._mwOxides = dict(np.genfromtxt(mwOxides_fname,delimiter= ',',names=True,skip_header=1,\
@@ -135,6 +136,10 @@ class simulation():
         for liquid in self.liquid_names: 
             self.gamma[liquid] = 1 # TODO: May have to do same for second parameter (l318 in og code)
 
+        ''' Computing activities in the melt (based on temp) '''
+        self.td = thermodynamic_data(self.T)
+        self.actMelt = self.td.activities_melt()
+        
     # end __init__()
 
     def start(self):
@@ -157,6 +162,10 @@ class simulation():
                 else:
                     pass # TODO: This variable needs to be defined 
                     # self.actOx['Fe2O3'] = PFE2O3L * self.gamma['Fe3']
+
+        ''' Computes activities of the complex melts '''        
+        self.actMeltComp = self.td.activities_meltComplex(self.actOx)
+
         
     # end start()
 

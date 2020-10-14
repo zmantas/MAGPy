@@ -10,25 +10,25 @@ class model_comp():
 
         ''' Defining oxide names '''
         self._oxideNames = 'SiO2',\
-                            'MgO',\
-                            'Al2O3',\
-                            'TiO2',\
-                            'Fe2O3',\
-                            'FeO',\
-                            'CaO',\
-                            'Na2O',\
-                            'K2O'
+                           'MgO',\
+                           'Al2O3',\
+                           'TiO2',\
+                           'FeO',\
+                           'Fe2O3',\
+                           'CaO',\
+                           'Na2O',\
+                           'K2O'
         
         ''' Defining metal names '''
         self._metalNames = 'Si',\
-                            'Mg',\
-                            'Al',\
-                            'Ti',\
-                            'Fe',\
-                            'Fe3',\
-                            'Ca',\
-                            'Na',\
-                            'K'
+                           'Mg',\
+                           'Al',\
+                           'Ti',\
+                           'Fe',\
+                           'Fe3',\
+                           'Ca',\
+                           'Na',\
+                           'K'
 
         ''' Reading data from input file '''
         print(f'Reading input data from: {input_fname}')

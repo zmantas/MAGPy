@@ -29,7 +29,6 @@ import numpy as np
 from model_comp import model_comp
 from simulation import simulation
 
-
 def main():
 
     ''' File names '''
