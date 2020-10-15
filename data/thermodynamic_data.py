@@ -12,6 +12,7 @@ class thermodynamic_data():
         self.actMelt = {} # melt activities
         self.actMeltComp = {}
 
+    # end __init__()
 
     def activities_melt(self):
         '''
@@ -291,6 +292,8 @@ class thermodynamic_data():
 
         return self.actMelt
 
+    # end activities_melt()
+
     def activities_meltComplex(self,actOx):
         '''
         Calculates the activities for the complex species in the melt 
@@ -338,6 +341,150 @@ class thermodynamic_data():
 
         return self.actMeltComp
 
-    # __init__()
+    # end activities_meltComplex()
+
+    def recompute_gamma(self, actOx, gamma, comp, fAbMolecule):
+
+        ''' 
+        Recompute the activity coefficients of the oxides (gamma['Element']) from the acitivites
+        computed above. 
+
+        gamma['Element'] = 
+
+        Activity(pure oxide) / SUM activities of all complex melt species containing the oxide
+        
+        Variables:
+            - actOx: is required to calculate gamma for all elements
+            - gamma: original value being passed on 
+            - comp: necessary for calculating gamma['Fe2O3']
+            - fAbMolecule: necessary for calculating gamma['Fe2O3']
+
+        '''
+        #### gamma SiO2 ####
+        if actOx['SiO2'] != 0:
+            gamma['Si'] = actOx['SiO2'] / (actOx['SiO2'] + \
+                                           self.actMeltComp['MG1'] + self.actMeltComp['MG2'] + \
+                                           self.actMeltComp['CA4'] + self.actMeltComp['CA8'] + \
+                                           self.actMeltComp['CA10']+ self.actMeltComp['CA11']+ \
+                                           self.actMeltComp['FE2'] + self.actMeltComp['NA1'] + \
+                                           self.actMeltComp['NA3'] + self.actMeltComp['K1']  + \
+                                           self.actMeltComp['K3']  + \
+                                           2 * (self.actMeltComp['AL1'] + self.actMeltComp['CA5'] + \
+                                                self.actMeltComp['CA6'] + self.actMeltComp['CA7'] + \
+                                                self.actMeltComp['NA2'] + self.actMeltComp['K2']  + \
+                                                self.actMeltComp['K6']  + self.actMeltComp['K7']  + \
+                                                self.actMeltComp['K8']) + \
+                                           3 * (self.actMeltComp['NA4'] + self.actMeltComp['K4']) + \
+                                           4 * (self.actMeltComp['K7']) + \
+                                           5 * (self.actMeltComp['MG7'])
+                                           )
+        else:
+            gamma['Si'] = 0
+
+        #### gamma Mg ####
+        if actOx['MgO'] != 0:
+            gamma['Mg'] = actOx['MgO'] / (actOx['MgO'] + \
+                                         self.actMeltComp['MG1'] + self.actMeltComp['MG3'] + \
+                                         self.actMeltComp['MG4'] + self.actMeltComp['MG5'] + \
+                                         self.actMeltComp['CA6'] + self.actMeltComp['CA7'] + \
+                                         2 * (self.actMeltComp['MG2'] + self.actMeltComp['MG6'] + \
+                                              self.actMeltComp['MG7'])
+                                         )
+        else:
+            gamma['Mg'] = 0
+        
+        #### gamma Fe #### 
+        if actOx['FeO'] != 0:
+            gamma['Fe'] = actOx['FeO'] / (actOx['FeO'] + \
+                                         self.actMeltComp['FE1'] + self.actMeltComp['FE3'] +\
+                                         2 * (self.actMeltComp['FE2'] + actOx['Fe2O3']) + \
+                                         3 * (self.actMeltComp['FE4'])
+                                         )
+        else:
+            gamma['Fe'] = 0
+
+        #### gamma Fe3 ####
+        # gamma['Fe3'] is an adjustment factor, not a true activity coefficient because
+        # the mole fraction of Fe2O3 in the melt is not known.
+        if comp == 1:
+            gamma['Fe3'] = 1
+        
+        elif comp != 1 and actOx['Fe2O3'] != 0 and fAbMolecule['Fe'] != 0:
+            gamma['Fe3'] = actOx['Fe2O3'] / (actOx['Fe2O3'] + self.actMeltComp['FE4'])
+        
+        else:
+            gamma['Fe3'] = 0
+        
+        #### gamma Ca ####
+        if actOx['CaO'] != 0:
+            gamma['Ca'] = actOx['CaO'] / (actOx['CaO'] + \
+                                         self.actMeltComp['CA1'] + self.actMeltComp['CA2'] + \
+                                         self.actMeltComp['CA4'] + self.actMeltComp['CA5'] + \
+                                         self.actMeltComp['CA6'] + self.actMeltComp['CA9'] + \
+                                         self.actMeltComp['CA11']+ self.actMeltComp['CA12']+ \
+                                         self.actMeltComp['K8']  + \
+                                         2 * (self.actMeltComp['CA7'] + self.actMeltComp['CA8'] + \
+                                              self.actMeltComp['CA10']) + \
+                                         1.2 * (self.actMeltComp['CA3'])
+                                         )
+        else:
+            gamma['Ca'] = 0
+        
+        #### gamma Al ####
+        if actOx['Al2O3'] != 0:
+            gamma['AL'] = actOx['Al2O3'] / (actOx['Al2O3'] + \
+                                            self.actMeltComp['MG3'] + self.actMeltComp['CA1'] + \
+                                            self.actMeltComp['CA5'] + self.actMeltComp['CA8'] + \
+                                            self.actMeltComp['FE3'] + \
+                                            2 * (self.actMeltComp['CA2'] + self.actMeltComp['MG7']) + \
+                                            3 * (self.actMeltComp['AL1'])  + \
+                                            6 * (self.actMeltComp['CA12']) + \
+                                            7 * (self.actMeltComp['CA3'])  + \
+                                            0.5 * (self.actMeltComp['NA3'] + self.actMeltComp['NA4'] + \
+                                                   self.actMeltComp['NA5'] + self.actMeltComp['NA7'] + \
+                                                   self.actMeltComp['K3']  + self.actMeltComp['K4']  + \
+                                                   self.actMeltComp['K5']  + self.actMeltComp['K6']  + \
+                                                   self.actMeltComp['K8'])
+                                            )
+        else: 
+            gamma['AL'] = 0
+        
+        #### gamma Ti ####
+        if actOx['TiO2'] != 0:
+            gamma['Ti'] = actOx['TiO2'] / (actOx['TiO2'] + \
+                                           self.actMeltComp['MG4'] + self.actMeltComp['MG6'] + \
+                                           self.actMeltComp['CA9'] + self.actMeltComp['CA11']+ \
+                                           self.actMeltComp['FE1'] + self.actMeltComp['NA6'] + \
+                                           2 * (self.actMeltComp['MG5'])
+                                           )
+        else:
+            gamma['Ti'] = 0
+        
+        #### gamma Na2 ####
+        if actOx['Na2O'] != 0:
+            gamma['Na'] = actOx['Na2O'] / (actOx['Na2O'] + \
+                                          self.actMeltComp['NA1'] + self.actMeltComp['NA2'] + \
+                                          self.actMeltComp['NA6'] + \
+                                          0.5 * (self.actMeltComp['NA3'] + self.actMeltComp['NA4'] + \
+                                                 self.actMeltComp['NA5'] + self.actMeltComp['NA7'])
+                                          )
+        else:
+            gamma['Na'] = 0
+        
+        #### gamma ###
+        if actOx['K2O'] != 0:
+            gamma['K'] = actOx['K2O'] / (actOx['K2O'] + \
+                                        self.actMeltComp['K1'] + self.actMeltComp['K2'] + \
+                                        self.actMeltComp['K7'] + \
+                                        0.5 * (self.actMeltComp['K8'] + self.actMeltComp['K3'] + \
+                                               self.actMeltComp['K4'] + self.actMeltComp['K5'] + \
+                                               self.actMeltComp['K6'])
+                                        )
+        else:
+            gamma['K'] = 0
+
+        return gamma
+        
+    # end recompute_gamma()
         
 # end melt_activities():

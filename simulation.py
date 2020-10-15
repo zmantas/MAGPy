@@ -139,7 +139,7 @@ class simulation():
         ''' Computing activities in the melt (based on temp) '''
         self.td = thermodynamic_data(self.T)
         self.actMelt = self.td.activities_melt()
-        
+
     # end __init__()
 
     def start(self):
@@ -166,7 +166,13 @@ class simulation():
         ''' Computes activities of the complex melts '''        
         self.actMeltComp = self.td.activities_meltComplex(self.actOx)
 
-        
+        ''' Recomputing gamma grom the activities computed above '''
+        self.gamma = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
+        print(self.gamma)       
+ 
+
+
+
     # end start()
 
     def set_temp(self,T):
