@@ -15,6 +15,11 @@ class simulation():
         self._metalNames = model_composition._metalNames
         self._oxideNames = model_composition._oxideNames
 
+        ''' Relating oxides to metals '''
+        self._metal2oxide = {}
+        for i,metal in enumerate(self._metalNames):
+            self._metal2oxide[metal] = self._oxideNames[i]
+
         '''Constants'''
         self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number         densities
                                             # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
@@ -49,18 +54,21 @@ class simulation():
         self.numMolOx = {}
         for ox in self._mwOxides:
             if self.wt_oxides[ox] != 0: # Avoiding div by 0 error
+                print(ox)
                 self.numMolOx[ox] = self.wt_oxides[ox] / self._mwOxides[ox]
             else: 
                 self.numMolOx[ox] = 0
-
+                print('IS NULL VOOR:', ox)
+        print('num of moles',self.numMolOx['SiO2'])
         # Total amount of moles
         self.totMol = sum(self.numMolOx.values())
+        print('tot mol',self.totMol)
 
         # Mole percentages of the oxides
         self.mPerc = {}
         for ox in self.numMolOx:
             if self.wt_oxides[ox] != 0: # Avoiding div by 0 error
-                self.mPerc[ox] = self.numMolOx[ox] / self.totMol
+                self.mPerc[ox] = 100 * self.numMolOx[ox] / self.totMol
             else:
                 self.mPerc[ox] = 0
 
@@ -144,33 +152,86 @@ class simulation():
 
     def start(self):
 
-        # SOME LOOP SHOULD START HERE
+        print(self.gamma)
         self.comp += 1 # Update counter (could possibly be made obselete by loop)
 
-        ''' 
-        Activities of oxides in the melt:
-        - formula: activity = molecular abundance * activity coefficient
-        '''
-        self.actOx = {}
-        for i,metal in enumerate(self._metalNames):
-            if metal != 'Fe3':
-                self.actOx[self._oxideNames[i]] = self.fAbMolecule[metal] * self.gamma[metal]
-            else:
-            # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
-                if self.comp == 1:
-                    self.actOx['Fe2O3'] = 0
+        self.iit = 0 # Counter for it needed to solve for activities
+        while self.iit < 1e5: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
+            ''' 
+            Activities of oxides in the melt:
+            - formula: activity = molecular abundance * activity coefficient
+            '''
+            self.actOx = {}
+            for i,metal in enumerate(self._metalNames):
+                if metal != 'Fe3':
+                    self.actOx[self._oxideNames[i]] = self.fAbMolecule[metal] * self.gamma[metal]
                 else:
-                    pass # TODO: This variable needs to be defined 
-                    # self.actOx['Fe2O3'] = PFE2O3L * self.gamma['Fe3']
+                # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
+                    if self.comp == 1:
+                        self.actOx['Fe2O3'] = 0
+                    else:
+                        pass # TODO: This variable needs to be defined 
+                        # self.actOx['Fe2O3'] = PFE2O3L * self.gamma['Fe3']
 
-        ''' Computes activities of the complex melts '''        
-        self.actMeltComp = self.td.activities_meltComplex(self.actOx)
+            ''' Computes activities of the complex melts '''        
+            self.actMeltComp = self.td.activities_meltComplex(self.actOx)
 
-        ''' Recomputing gamma grom the activities computed above '''
-        self.gamma = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
-        print(self.gamma)       
- 
+            ''' Recomputing gamma grom the activities computed above '''
+            self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
+            
+            ''' Compute ratio of newly computed activity and previous activity '''
+            self.gamRat = {}
+            for element in self.gamma:
+                if self.gamma_new[element] != 0: # TODO: Check if for Fe3 you need to check that Fe is zero as well
+                    self.gamRat[element] = self.gamma_new[element]/self.gamma[element]
+                else:
+                    self.gamRat[element] = 1
 
+            ''' 
+            If self.gamRat[elements] ~1, the code has arrived at a solution for all the 
+            activities, and moves on to the gas chemistry. 
+            If this is not the case, then the activity coefficients are adjusted and 
+            the activities are recomputed until a solution is foudn. 
+            ''' 
+            if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
+                print(f'The code has arrived at a solution for all the gas activities after {self.iit+1} iteration(s).')
+                break
+
+            if self.iit > 50:
+                for element in self.gamma_new:
+                    self.gamma_new[element] = (self.gamma_new[element] * self.gamma[element]**4)**(1/5)
+            elif self.iit > 30:
+                for element in self.gamma_new:
+                    self.gamma_new[element] = (self.gamma_new[element] * self.gamma[element]**2)**(1/3)
+            else:
+                for element in self.gamma_new:
+                    self.gamma_new[element] = (self.gamma_new[element] * self.gamma[element])**(1/2)
+
+            self.gamma = self.gamma_new.copy() # Update gamma values
+            self.iit += 1 # updating counter
+            if self.iit >= 1e5: 
+                raise RuntimeError('Max recursion limit reached while calculating activities.')
+
+        # end while loop
+
+        '''
+        Activity calculations are finished. Reset number of iterations for 
+        activity calculations and continue to gas chemistry computations.
+        '''
+        self.iit = 0
+        '''
+        .....................................................................
+        GAS CHEMISTRY CALCULATIONS
+        Calculate gas chemistry in equilibrium with the calculated activities
+        from above. 
+        .....................................................................
+        '''
+        '''
+        ADJUST THE ABUNDANCES OF THE MAJOR GASES OF EACH ELEMENT
+        these abundances are used to calculate all other gas chemistry
+        '''
+        for gas in self.gas_names:
+            self.kPres[gas] = self.kPres [gas]* self.adjFact[gas]
 
 
     # end start()
@@ -206,12 +267,23 @@ class simulation():
         ''' Oxide Mole fraction in silicate '''
         file.write(f'\nOxide Mole Fraction (F) in Silicate\n \n')
         for name in self.fAbMolecule:
-            file.write(f'{name:<3}= {self.fAbMolecule[name]:.5f}\n') 
+            file.write(f'{self._metal2oxide[name]:<3}= {self.fAbMolecule[name]:.5f}\n') 
 
         ''' Relative atomic abundances of metals '''
         file.write(f'\nRelative atomic abundances of metals\n \n')
         for name in self.fAbAtom:
             file.write(f'{name:<3}= {self.fAbAtom[name]:.5f}\n')
+
+        ''' The activity data '''
+        file.write(f'\nActivity coefficients (G) of oxides in the melt\n \n')
+        for ox in self.gamma:
+            file.write(f'{ox:<3}= {self.gamma[ox]:.5f}\n')
+
+        file.write(f'\nActivities (A) of Species in the melt\n \n')
+        for ox in self.actOx:
+            file.write(f'{ox:<12} {self.actOx[ox]:.6f}\n')
+        for comp in self.actMeltComp:
+            file.write(f'{self.td.nameMeltComp[comp]:<12} {self.actMeltComp[comp]:.6f}\n') 
 
         ''' Closing the file ''' 
         file.close()

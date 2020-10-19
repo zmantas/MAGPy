@@ -13,8 +13,8 @@ class model_comp():
                            'MgO',\
                            'Al2O3',\
                            'TiO2',\
-                           'FeO',\
                            'Fe2O3',\
+                           'FeO',\
                            'CaO',\
                            'Na2O',\
                            'K2O'
@@ -24,8 +24,8 @@ class model_comp():
                            'Mg',\
                            'Al',\
                            'Ti',\
-                           'Fe',\
                            'Fe3',\
+                           'Fe',\
                            'Ca',\
                            'Na',\
                            'K'

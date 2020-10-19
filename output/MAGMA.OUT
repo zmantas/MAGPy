@@ -2,35 +2,99 @@ INITIAL PARAMETERS AND COMPOSITION
 Magma composition:
  
 Oxide     WT%          Mole%
-SiO2      47.100       0.44287
-MgO       26.600       0.37286
-Al2O3     4.040        0.02239
-TiO2      0.240        0.00170
-FeO       12.800       0.10065
-Fe2O3     0.000        0.00000
-CaO       5.440        0.05481
-Na2O      0.460        0.00419
-K2O       0.090        0.00054
-Total     96.770       1.00000
+SiO2      47.100       46.88252
+MgO       26.600       39.47138
+Al2O3     4.040        2.36971
+TiO2      0.240        0.17972
+Fe2O3     12.800       4.79384
+FeO       0.000        0.00000
+CaO       5.440        5.80180
+Na2O      0.460        0.44388
+K2O       0.090        0.05714
+Total     96.770       100.00000
 
 Oxide Mole Fraction (F) in Silicate
  
-Si = 0.44287
-Mg = 0.37286
-Al = 0.02239
-Ti = 0.00170
-Fe = 0.10065
-Ca = 0.05481
-Na = 0.00419
-K  = 0.00054
+SiO2= 0.44738
+MgO= 0.37666
+Al2O3= 0.02261
+TiO2= 0.00172
+FeO= 0.09149
+CaO= 0.05536
+Na2O= 0.00424
+K2O= 0.00055
 
 Relative atomic abundances of metals
  
-Si = 0.43117
-Mg = 0.36301
-Al = 0.04359
-Ti = 0.00165
-Fe = 0.09800
-Ca = 0.05336
-Na = 0.00816
-K  = 0.00105
+Si = 0.43545
+Mg = 0.36661
+Al = 0.04402
+Ti = 0.00167
+Fe = 0.08905
+Ca = 0.05389
+Na = 0.00825
+K  = 0.00106
+
+Activity coefficients (G) of oxides in the melt
+ 
+Si = 0.00000
+Mg = 0.00001
+Fe = 0.50222
+Fe3= 1.00000
+Ca = 0.00000
+Al = 1.00000
+Ti = 0.00009
+Na = 0.00000
+K  = 0.00000
+AL = 0.00000
+
+Activities (A) of Species in the melt
+ 
+SiO2         0.447379
+MgO          0.376657
+Al2O3        0.022613
+TiO2         0.001715
+Fe2O3        0.000000
+FeO          0.091491
+CaO          0.055364
+Na2O         0.004236
+K2O          0.000545
+MgSiO3       6.473240
+Mg2SiO4      37.981162
+MgAl2O4      0.219941
+MgTiO3       0.020101
+MgTi2O5      0.000095
+Mg2TiO4      0.091656
+Mg2Al4Si5O18 39.263545
+Al6Si2O13    0.000129
+CaAl2O4      1.728174
+CaAl4O7      0.522935
+Ca12Al14O33  1654.812578
+CaSiO3       52.227873
+CaAl2Si2O8   49.196910
+CaMgSi2O6    2103.894861
+Ca2MgSi2O7   45420.428869
+Ca2Al2SiO7   718.604419
+CaTiO3       0.266069
+Ca2SiO4      94.434250
+CaTiSiO5     3.045581
+CaAl12O19    0.000243
+FeTiO3       0.002952
+Fe2SiO4      0.031256
+FeAl2O4      0.025220
+Fe3O4        0.000000
+Na2SiO3      763.135182
+Na2Si2O5     1634.092420
+NaAlSiO4     61.633734
+NaAlSi3O8    423.319974
+NaAlO2       1.173933
+Na2TiO3      15.984320
+NaAlSi2O6    11.898539
+K2SiO3       1056.824489
+K2Si2O5      5329.396197
+KAlSiO4      318.910764
+KAlSi3O8     1667.321909
+KAlO2        4.027115
+KAlSi2O6     2750.073604
+K2Si4O9      1447.199109
+KCaAlSi2O7   255194620.565586
