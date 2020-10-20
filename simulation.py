@@ -5,12 +5,16 @@ class simulation():
     ''' 
     Initialises the vaporisation simulation.
     '''
-    def __init__(self,model_composition):
+    def __init__(self,model_composition,T):
 
         ''' File names ''' 
         mwOxides_fname = 'data/weights_oxides.csv'
         wMetals_fname = 'data/weights_metals.csv'
 
+        ''' Setting temperature '''
+        self.T = T   # temperature of magma (Kelvin)
+        print(f'Calculating for a magma temperature of {self.T} K')
+        
         ''' Importing metal and oxide name lists from '''
         self._metalNames = model_composition._metalNames
         self._oxideNames = model_composition._oxideNames
@@ -25,13 +29,12 @@ class simulation():
                                             # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
         self._avog = 6.023e23 # Avogadro's number
 
-        '''Setting simulation parameters'''
+        '''Setting simulation parameters TODO: Make variable'''
         self.iRep = 2   
         self.iStep = 0  # counts the number of vaporization steps
         self.iPrn = 0   # used to determine which steps are printed to the output file
         self.iIt = 0    # counts the number of iterations needed to solve for the activities
         self.iFirst = 0
-        self.T = 2000   # temperature of magma (Kelvin)
         self.perVap = 0 # number of iterations of vaporization process
         self.comp = 0 # counting factor
 
@@ -54,16 +57,13 @@ class simulation():
         self.numMolOx = {}
         for ox in self._mwOxides:
             if self.wt_oxides[ox] != 0: # Avoiding div by 0 error
-                print(ox)
                 self.numMolOx[ox] = self.wt_oxides[ox] / self._mwOxides[ox]
             else: 
                 self.numMolOx[ox] = 0
-                print('IS NULL VOOR:', ox)
-        print('num of moles',self.numMolOx['SiO2'])
+                
         # Total amount of moles
         self.totMol = sum(self.numMolOx.values())
-        print('tot mol',self.totMol)
-
+        
         # Mole percentages of the oxides
         self.mPerc = {}
         for ox in self.numMolOx:
@@ -152,7 +152,7 @@ class simulation():
 
     def start(self):
 
-        print(self.gamma)
+        # print(self.gamma)
         self.comp += 1 # Update counter (could possibly be made obselete by loop)
 
         self.iit = 0 # Counter for it needed to solve for activities
@@ -178,7 +178,8 @@ class simulation():
 
             ''' Recomputing gamma grom the activities computed above '''
             self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
-            
+
+            # print('gamma Mg ',self.gamma_new['Mg'])
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
             for element in self.gamma:
@@ -267,7 +268,7 @@ class simulation():
         ''' Oxide Mole fraction in silicate '''
         file.write(f'\nOxide Mole Fraction (F) in Silicate\n \n')
         for name in self.fAbMolecule:
-            file.write(f'{self._metal2oxide[name]:<3}= {self.fAbMolecule[name]:.5f}\n') 
+            file.write(f'{self._metal2oxide[name]:<6}= {self.fAbMolecule[name]:.5f}\n') 
 
         ''' Relative atomic abundances of metals '''
         file.write(f'\nRelative atomic abundances of metals\n \n')
@@ -277,7 +278,7 @@ class simulation():
         ''' The activity data '''
         file.write(f'\nActivity coefficients (G) of oxides in the melt\n \n')
         for ox in self.gamma:
-            file.write(f'{ox:<3}= {self.gamma[ox]:.5f}\n')
+            file.write(f'{ox:<4}= {self.gamma[ox]:.5f}\n')
 
         file.write(f'\nActivities (A) of Species in the melt\n \n')
         for ox in self.actOx:

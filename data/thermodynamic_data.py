@@ -437,7 +437,12 @@ class thermodynamic_data():
             - comp: necessary for calculating gamma['Fe2O3']
             - fAbMolecule: necessary for calculating gamma['Fe2O3']
 
+        TODO: This part of the code gives slightly different values than the F77 code.
+              This is most likely due to a difference in precesion. Should be checked out. 
+
         '''
+        gamma = gamma.copy() # Necessary in order to avoid working in original gamma value dict
+
         #### gamma SiO2 ####
         if actOx['SiO2'] != 0:
             gamma['Si'] = actOx['SiO2'] / (actOx['SiO2'] + \
@@ -503,14 +508,14 @@ class thermodynamic_data():
                                          self.actMeltComp['K8']  + \
                                          2 * (self.actMeltComp['CA7'] + self.actMeltComp['CA8'] + \
                                               self.actMeltComp['CA10']) + \
-                                         1.2 * (self.actMeltComp['CA3'])
+                                         12 * (self.actMeltComp['CA3'])
                                          )
         else:
             gamma['Ca'] = 0
         
         #### gamma Al ####
         if actOx['Al2O3'] != 0:
-            gamma['AL'] = actOx['Al2O3'] / (actOx['Al2O3'] + \
+            gamma['Al'] = actOx['Al2O3'] / (actOx['Al2O3'] + \
                                             self.actMeltComp['MG3'] + self.actMeltComp['CA1'] + \
                                             self.actMeltComp['CA5'] + self.actMeltComp['CA8'] + \
                                             self.actMeltComp['FE3'] + \
@@ -525,7 +530,7 @@ class thermodynamic_data():
                                                    self.actMeltComp['K8'])
                                             )
         else: 
-            gamma['AL'] = 0
+            gamma['Al'] = 0
         
         #### gamma Ti ####
         if actOx['TiO2'] != 0:

@@ -31,6 +31,9 @@ from simulation import simulation
 
 def main():
 
+    ''' Temperature for which the calculations will be done '''
+    T = 1613 # Temperature of magma in Kelvin
+
     ''' File names '''
     input_fname = 'input/initial-composition.dat'
     output_fname = 'output/MAGMA.OUT'
@@ -40,7 +43,7 @@ def main():
     model.print()
 
     ''' Start simulation '''
-    sim = simulation(model)
+    sim = simulation(model,T)
     sim.start()
 
     ''' Write to output ''' 
