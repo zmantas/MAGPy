@@ -1,99 +1,99 @@
 INITIAL PARAMETERS AND COMPOSITION
 Magma composition:
  
-Oxide     WT%          Mole%
-SiO2      47.100       46.88252
-MgO       26.600       39.47138
-Al2O3     4.040        2.36971
-TiO2      0.240        0.17972
-Fe2O3     12.800       4.79384
-FeO       0.000        0.00000
-CaO       5.440        5.80180
-Na2O      0.460        0.44388
-K2O       0.090        0.05714
-Total     96.770       100.00000
+Oxide        WT%          Mole%
+SiO2     4.7100e+01    4.688252e+01
+MgO      2.6600e+01    3.947138e+01
+Al2O3    4.0400e+00    2.369715e+00
+TiO2     2.4000e-01    1.797230e-01
+Fe2O3    1.2800e+01    4.793843e+00
+FeO      0.0000e+00    0.000000e+00
+CaO      5.4400e+00    5.801803e+00
+Na2O     4.6000e-01    4.438764e-01
+K2O      9.0000e-02    5.714306e-02
+Total    9.6770e+01    1.000000e+02
 
 Oxide Mole Fraction (F) in Silicate
  
-SiO2  = 0.44738
-MgO   = 0.37666
-Al2O3 = 0.02261
-TiO2  = 0.00172
-FeO   = 0.09149
-CaO   = 0.05536
-Na2O  = 0.00424
-K2O   = 0.00055
+SiO2  = 4.473785e-01
+MgO   = 3.766574e-01
+Al2O3 = 2.261311e-02
+TiO2  = 1.715015e-03
+FeO   = 9.149093e-02
+CaO   = 5.536397e-02
+Na2O  = 4.235711e-03
+K2O   = 5.452902e-04
 
 Relative atomic abundances of metals
  
-Si = 0.43545
-Mg = 0.36661
-Al = 0.04402
-Ti = 0.00167
-Fe = 0.08905
-Ca = 0.05389
-Na = 0.00825
-K  = 0.00106
+Si = 4.354498e-01
+Mg = 3.666144e-01
+Al = 4.402033e-02
+Ti = 1.669286e-03
+Fe = 8.905144e-02
+Ca = 5.388776e-02
+Na = 8.245543e-03
+K  = 1.061502e-03
 
 Activity coefficients (G) of oxides in the melt
  
-Si = 0.26192
-Mg = 0.03736
-Fe = 0.67772
-Fe3= 1.00000
-Ca = 0.00040
-Al = 0.13557
-Ti = 0.11247
-Na = 0.00000
-K  = 0.00000
+Si  = 2.619231e-01
+Mg  = 3.736391e-02
+Fe  = 6.777152e-01
+Fe3 = 1.000000e+00
+Ca  = 4.033368e-04
+Al  = 1.355675e-01
+Ti  = 1.124730e-01
+Na  = 1.077144e-08
+K   = 1.420962e-17
 
 Activities (A) of Species in the melt
  
-SiO2         0.117179
-MgO          0.014073
-Al2O3        0.003066
-TiO2         0.000193
-Fe2O3        0.000000
-FeO          0.062005
-CaO          0.000022
-Na2O         0.000000
-K2O          0.000000
-MgSiO3       0.120543
-Mg2SiO4      0.108256
-MgAl2O4      0.001266
-MgTiO3       0.000207
-MgTi2O5      0.000000
-Mg2TiO4      0.000041
-Mg2Al4Si5O18 0.000001
-Al6Si2O13    0.000000
-CaAl2O4      0.001521
-CaAl4O7      0.000057
-Ca12Al14O33  0.000000
-CaSiO3       0.025686
-CaAl2Si2O8   0.000804
-CaMgSi2O6    0.022666
-Ca2MgSi2O7   0.001306
-Ca2Al2SiO7   0.000080
-CaTiO3       0.000085
-Ca2SiO4      0.000041
-CaTiSiO5     0.000584
-CaAl12O19    0.000000
-FeTiO3       0.000603
-Fe2SiO4      0.008860
-FeAl2O4      0.011163
-Fe3O4        0.000000
-Na2SiO3      0.000099
-Na2Si2O5     0.000084
-NaAlSiO4     0.004262
-NaAlSi3O8    0.003293
-NaAlO2       0.000104
-Na2TiO3      0.000001
-NaAlSi2O6    0.000443
-K2SiO3       0.000000
-K2Si2O5      0.000000
-KAlSiO4      0.000001
-KAlSi3O8     0.000001
-KAlO2        0.000000
-KAlSi2O6     0.000004
-K2Si4O9      0.000000
-KCaAlSi2O7   0.001084
+SiO2         1.171788e-01
+MgO          1.407339e-02
+Al2O3        3.065603e-03
+TiO2         1.928928e-04
+Fe2O3        0.000000e+00
+FeO          6.200479e-02
+CaO          2.233032e-05
+Na2O         4.562469e-11
+K2O          7.748367e-21
+MgSiO3       1.205428e-01
+Mg2SiO4      1.082555e-01
+MgAl2O4      1.266419e-03
+MgTiO3       2.070686e-04
+MgTi2O5      9.836152e-08
+Mg2TiO4      4.124887e-05
+Mg2Al4Si5O18 1.241865e-06
+Al6Si2O13    2.947114e-07
+CaAl2O4      1.521376e-03
+CaAl4O7      5.670554e-05
+Ca12Al14O33  1.196311e-35
+CaSiO3       2.568602e-02
+CaAl2Si2O8   8.035830e-04
+CaMgSi2O6    2.266607e-02
+Ca2MgSi2O7   1.306341e-03
+Ca2Al2SiO7   7.997541e-05
+CaTiO3       8.473224e-05
+Ca2SiO4      4.113826e-05
+CaTiSiO5     5.843936e-04
+CaAl12O19    3.137540e-10
+FeTiO3       6.030990e-04
+Fe2SiO4      8.860211e-03
+FeAl2O4      1.116270e-02
+Fe3O4        0.000000e+00
+Na2SiO3      9.929628e-05
+Na2Si2O5     8.381599e-05
+NaAlSiO4     4.261737e-03
+NaAlSi3O8    3.293350e-03
+NaAlO2       1.044009e-04
+Na2TiO3      1.379881e-06
+NaAlSi2O6    4.431375e-04
+K2SiO3       1.325823e-13
+K2Si2O5      3.000971e-13
+KAlSiO4      1.273179e-06
+KAlSi3O8     9.246391e-07
+KAlO2        2.035490e-08
+KAlSi2O6     4.292244e-06
+K2Si4O9      1.241059e-14
+KCaAlSi2O7   1.084082e-03

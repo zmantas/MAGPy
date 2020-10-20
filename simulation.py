@@ -131,11 +131,12 @@ class simulation():
             self.fAbAtom[ox] = self.abEl[ox] / self.abETot
 
         ''' Setting initial values of key pressures and adjustment factors for gases '''
-        self.kPres = {}  # key pressures
-        self.adjFact = {} # adjustment factors
+        self.presGas = {}  # gas pressures (initialised below)
+        self.presLiq = {} # liquid pressures (not defined until start of calc)
+        self.adjFact = {}  # adjustment factors
         self.gas_names = ['SiO','O2','MgO','Fe','Ca','Al','Ti','Na','K']
         for gas in self.gas_names:
-            self.kPres[gas] = 1
+            self.presGas[gas] = 1
             self.adjFact[gas] = 1
         
         ''' Setting inital values of gamma (activity coefficient)'''
@@ -178,8 +179,7 @@ class simulation():
 
             ''' Recomputing gamma grom the activities computed above '''
             self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
-
-            # print('gamma Mg ',self.gamma_new['Mg'])
+            
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
             for element in self.gamma:
@@ -195,7 +195,7 @@ class simulation():
             the activities are recomputed until a solution is foudn. 
             ''' 
             if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
-                print(f'The code has arrived at a solution for all the gas activities after {self.iit+1} iteration(s).')
+                print(f'The code has arrived at a solution for the gas activities after {self.iit+1} iteration(s).')
                 break
 
             if self.iit > 50:
@@ -224,7 +224,10 @@ class simulation():
         .....................................................................
         GAS CHEMISTRY CALCULATIONS
         Calculate gas chemistry in equilibrium with the calculated activities
-        from above. 
+        from above.
+
+        THIS IS PROBABLY ANOTHER WHILE LOOP
+
         .....................................................................
         '''
         '''
@@ -232,7 +235,13 @@ class simulation():
         these abundances are used to calculate all other gas chemistry
         '''
         for gas in self.gas_names:
-            self.kPres[gas] = self.kPres [gas]* self.adjFact[gas]
+            self.presGas[gas] = self.presGas[gas]* self.adjFact[gas]
+
+        ''' Compute the partial pressures of the vapor species ''' 
+        self.td.ion_chemistry(self.presGas,self.presLiq)
+        print(self.presGas,'\n')
+        print(self.presLiq)
+
 
 
     # end start()
@@ -260,31 +269,31 @@ class simulation():
 
         ''' Magma composition ''' 
         file.write(f'Magma composition:\n \n')
-        file.write(f'Oxide     WT%          Mole%\n')
+        file.write(f'Oxide        WT%          Mole%\n')
         for ox in self.wt_oxides:
-            file.write(f'{ox:<6}    {self.wt_oxides[ox]:<9.3f}    {self.mPerc[ox]:.5f}\n') 
-        file.write(f'Total     {self.totWt:<9.3f}    {self.totPerc:.5f}\n')
+            file.write(f'{ox:<5}    {self.wt_oxides[ox]:<9.4e}    {self.mPerc[ox]:.6e}\n') 
+        file.write(f'Total    {self.totWt:<9.4e}    {self.totPerc:.6e}\n')
 
         ''' Oxide Mole fraction in silicate '''
         file.write(f'\nOxide Mole Fraction (F) in Silicate\n \n')
         for name in self.fAbMolecule:
-            file.write(f'{self._metal2oxide[name]:<6}= {self.fAbMolecule[name]:.5f}\n') 
+            file.write(f'{self._metal2oxide[name]:<6}= {self.fAbMolecule[name]:.6e}\n') 
 
         ''' Relative atomic abundances of metals '''
         file.write(f'\nRelative atomic abundances of metals\n \n')
         for name in self.fAbAtom:
-            file.write(f'{name:<3}= {self.fAbAtom[name]:.5f}\n')
+            file.write(f'{name:<3}= {self.fAbAtom[name]:.6e}\n')
 
         ''' The activity data '''
         file.write(f'\nActivity coefficients (G) of oxides in the melt\n \n')
         for ox in self.gamma:
-            file.write(f'{ox:<4}= {self.gamma[ox]:.5f}\n')
+            file.write(f'{ox:<4}= {self.gamma[ox]:.6e}\n')
 
         file.write(f'\nActivities (A) of Species in the melt\n \n')
         for ox in self.actOx:
-            file.write(f'{ox:<12} {self.actOx[ox]:.6f}\n')
+            file.write(f'{ox:<12} {self.actOx[ox]:.6e}\n')
         for comp in self.actMeltComp:
-            file.write(f'{self.td.nameMeltComp[comp]:<12} {self.actMeltComp[comp]:.6f}\n') 
+            file.write(f'{self.td.nameMeltComp[comp]:<12} {self.actMeltComp[comp]:.6e}\n') 
 
         ''' Closing the file ''' 
         file.close()
