@@ -12,6 +12,8 @@ class thermodynamic_data():
         self.actMelt = {} # melt activities
         self.actMeltComp = {}
         self.nameMeltComp = {}
+        self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number         densities
+                                            # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
 
         '''
         Gas chemistry thermodynamic data
@@ -952,11 +954,6 @@ class thermodynamic_data():
 
         '''
         Compute the partial pressures of the vapor species and activities of the oxides.
-        
-        Ion chemistry:
-            PENEG = P(e-,g), PNACAT = P(Na+,g), PKCAT = P(K+,g)
-            PENEG = PNACAT + PKCAT; 
-            HENCE PENEG = DSQRT((PNACAT + PKCAT)*PENEG)
         '''
 
         # TODO: Look into placing all the relevant variables in thermo data
@@ -967,18 +964,9 @@ class thermodynamic_data():
         presGas['O']    = self.EOG * presGas['O2']**0.5
         presGas['SiO2'] = self.ESIO2G * presLiq['Si'] * presGas['O2']
 
-        # PSIO2L = ESIO2L * PSIOG * DSQRT(PO2G)
-        # PSIL = ESIL * PSIOG * PO2G**(-0.5)
-        # PSIG = ESIG * PSIL
-        # POG = EOG * DSQRT(PO2G)
-        # PSIO2G = ESIO2G * PSIL * PO2G
-
         ''' Mg '''
         presGas['Mg'] = self.EMGG * presGas['MgO'] * presGas['O2']**(-0.5)
-        presLiq['Mg'] = self.EMGOL *presGas['Mg'] * presGas['O']
-
-        # PMGG = EMGG * PMGOG * PO2G**(-0.5)
-        # PMGOL = EMGOL * PMGG * POG
+        presLiq['MgO'] = self.EMGOL *presGas['Mg'] * presGas['O']
 
         ''' Fe '''
         presLiq['FeO'] = self.EFEOL * presGas['Fe'] * presGas['O']
@@ -987,18 +975,9 @@ class thermodynamic_data():
         presLiq['Fe2O3'] = self.EFE2O3L * presGas['Fe']**2 * presGas['O2']**1.5
         presLiq['Fe3O4'] = self.EFE3O4L * presGas['Fe']**3 * presGas['O2']**2
 
-        # PFEOL = EFEOL * PFEG * POG
-        # PFEL = EFEL * PFEG
-        # PFEOG = EFEOG * PFEG * DSQRT(PO2G)
-        # PFE2O3L = EFE2O3L * PFEG**2 * PO2G**1.5
-        # PFE3O4L = EFE3O4L * PFEG**3 * PO2G**2
-
         ''' Ca '''
         presLiq['CaO'] = self.ECAOL * presGas['Ca'] * presGas['O']
         presGas['CaO'] = self.ECAOG * presGas['Ca'] * presGas['O2']
-
-        # PCAOL = ECAOL * PCAG * POG
-        # PCAOG = ECAOG * PCAG * DSQRT(PO2G)
 
         ''' Al '''
         presLiq['Al2O3'] = self.EAL2O3L * presGas['Al']**2 * presGas['O']**3
@@ -1008,23 +987,11 @@ class thermodynamic_data():
         presGas['Al2O']  = self.EAL2OG * presGas['Al']**2 * presGas['O2']**0.5
         presGas['Al2O2'] = self.EAL2O2G * presGas['Al']**2 * presGas['O2']
 
-        # PAL2O3L = EAL2O3L * PALG**2 * POG**3
-        # PALL = EALL * PALG
-        # PALOG = EALOG * PALG * DSQRT(PO2G)
-        # PALO2G = EALO2G * PALG * PO2G
-        # PAL2OG = EAL2OG * PALG**2 * DSQRT(PO2G)
-        # PAL2O2G = EAL2O2G * PALG**2 * PO2G
-
         ''' Ti ''' 
         presLiq['Ti']   = self.ETIL * presGas['Ti']
         presGas['TiO']  = self.ETIOG * presLiq['Ti'] * presGas['O2']**0.5
         presLiq['TiO2'] = self.ETIO2L * presGas['Ti'] * presGas['O']**2
         presGas['TiO2'] = self.ETIO2G * presLiq['Ti'] * presGas['O2'] 
-
-        # PTIL = ETIL * PTIG
-        # PTIOG = ETIOG * PTIL * DSQRT(PO2G)
-        # PTIO2L = ETIO2L * PTIG * POG**2
-        # PTIO2G = ETIO2G * PTIL * PO2G
 
         ''' Na '''
         presLiq['Na2O'] = self.ENA2OL * presGas['Na']**2 * presGas['O']
@@ -1032,49 +999,182 @@ class thermodynamic_data():
         presGas['Na2']  = self.ENA2G * presGas['Na']**2
         presGas['Na2O'] = self.ENA2OG * presGas['Na']**2 * presGas['O']
 
-        # PNA2OL = ENA2OL * PNAG**2 * POG
-        # PNAOG = ENAOG * PNAG * POG
-        # PNA2G = ENA2G * PNAG**2
-        # PNA2OG = ENA2OG * PNAG**2 * POG
-
         ''' K '''
         presLiq['K2O'] = self.EK2OL * presGas['K']**2 * presGas['O']
         presGas['KO'] = self.EKOG * presGas['K'] * presGas['O']
         presGas['K2'] = self.EK2G * presGas['K']**2
         presGas['K2O'] = self.EK2OG * presGas['K']**2 * presGas['O']
 
-        # PK2OL = EK2OL * PKG**2 * POG
-        # PKOG = EKOG * PKG * POG
-        # PK2G = EK2G * PKG**2
-        # PK2OG = EK2OG * PKG**2 * POG
-
-        # TODO: findin out what ENACAT, EKCAT and PENEG stand for
+        '''
+        Ion chemistry:
+        PENEG = P(e-,g), PNACAT = P(Na+,g), PKCAT = P(K+,g)
+        PENEG = PNACAT + PKCAT; 
+        HENCE PENEG = DSQRT((PNACAT + PKCAT)*PENEG)
+        '''
         self.PENEG = np.sqrt(self.ENACAT*presGas['Na'] + self.EKCAT*presGas['K'])
-
-        # PENEG = DSQRT(ENACAT*PNAG + EKCAT*PKG)
 
         if presGas['Na'] != 0:
             self.PNACAT = self.ENACAT * presGas['Na']/self.PENEG
         else:
             self.PNACAT = 0
 
-        # IF(PNAG .NE. 0.0D0) THEN
-        # PNACAT = ENACAT * PNAG / PENEG
-        # ELSE
-        # PNACAT = 0.0D0
-        # ENDIF
-
         if presGas['K'] != 0:
             self.PKCAT = self.EKCAT * presGas['K']/self.PENEG
         else: 
             self.PKCAT = 0
 
-        # IF(PKG .NE. 0.0D0) THEN
-        # PKCAT = EKCAT * PKG / PENEG
-        # ELSE
-        # PKCAT = 0.0D0
-        # ENDIF
-
     # end ion_chemistry()
+
+    def number_density(self,presGas):
+
+        ''' Calculating for each species ''' 
+        self.rho = {}
+        for gas in presGas:
+            self.rho[gas] = self._pConv * presGas[gas] / self.T
+
+        # TODO find suitable names for these species
+        self.CENEG  = self._pConv * self.PENEG  / self.T
+        self.CNACAT = self._pConv * self.PNACAT / self.T
+        self.CKCAT  = self._pConv * self.PKCAT  / self.T
+
+        ''' Calculating for each element ''' 
+        self.totRho = {}
+        self.totRho['Si'] = self.rho['Si'] + self.rho['SiO'] + self.rho['SiO2']
+        self.totRho['O']  = 2 * (self.rho['O2'] + self.rho['SiO2'] + self.rho['AlO2'] + \
+                                 self.rho['Al2O2'] + self.rho['TiO2']) + \
+                            self.rho['SiO'] + self.rho['O'] + self.rho['MgO'] + \
+                            self.rho['FeO'] + self.rho['CaO'] + self.rho['AlO'] + \
+                            self.rho['Al2O'] + self.rho['TiO'] + self.rho['NaO'] + \
+                            self.rho['Na2O'] + self.rho['KO'] + self.rho['K2O'] 
+        self.totRho['Mg'] = self.rho['MgO'] + self.rho['Mg']
+        self.totRho['Fe'] = self.rho['FeO'] + self.rho['Fe']
+        self.totRho['Ca'] = self.rho['CaO'] + self.rho['Ca']
+        self.totRho['Al'] = self.rho['AlO'] + self.rho['Al'] + self.rho['AlO2'] + \
+                            2 * (self.rho['Al2O'] + self.rho['Al2O2'])
+        self.totRho['Ti'] = self.rho['TiO'] + self.rho['Ti'] + self.rho['TiO2']
+        self.totRho['Na'] = self.rho['NaO'] + self.rho['Na'] + self.CNACAT + \
+                            2 * (self.rho['Na2'] + self.rho['Na2O'])
+        self.totRho['K']  = self.rho['KO'] + self.rho['K'] + self.CKCAT + \
+                            2 * (self.rho['K2O'] + self.rho['K2'])
+
+        ''' 
+        Calculating the ratio of the number density of O in oxide gases to tot O
+        number density
+        '''
+        self.oxideO_ratio = (self.totRho['Mg'] + self.totRho['Fe'] + self.totRho['Ca'] + \
+                            2 * (self.totRho['Si'] + self.totRho['Ti']) + \
+                            1.5 * (self.totRho['Al']) +  \
+                            0.5 * (self.totRho['Na'] + self.totRho['K'])) / self.totRho['O'] 
+    
+    # end number_density()
+
+    def recompute_adjFact(self,presGas,presLiq,gamma,adjFact,fAbMolecule,actOx):
+        #TODO: SHOULD PROBABLY BE MOVED TO SIMULATION CLASS
+        '''
+        RECOMPUTE ADJUSTMENT FACTORS FOR THE KEY PRESSURES
+        The activity of the oxides calculated during the activity
+        calculations and from the gas chemistry must agree.
+        
+        If the oxide mole fraction for the element is zero, then there
+        should not be any of that element in the vapor (A(element) = 0).
+        
+        The O2 abundance is governed by the most abundant oxide in the melt, 
+        normally SiO2.  Once SiO2 is completely vaporized, AO2G is computed 
+        from the remaining species in the melt, in order of volatility.
+        '''
+
+        # SiO
+        if all(val != 0 for val in [presLiq['SiO2'],fAbMolecule['Si'],gamma['Si']]):
+            adjFact['SiO'] = 1 / (self.oxideO_ratio * (presLiq['SiO2']/(fAbMolecule['Si'] * gamma['Si']))**0.5)
+        elif fAbMolecule['Si'] == 0:
+            adjFact['SiO'] = 0
+        else:
+            adjFact['SiO'] = 1
+
+        # MgO
+        if presLiq['MgO'] != 0:
+            adjFact['MgO'] = fAbMolecule['Mg'] * gamma['Mg'] / presLiq['MgO'] 
+
+        # Fe
+        if presLiq['FeO'] != 0 or presLiq['PFE2O3L'] != 0:
+            adjFact['Fe'] = (fAbMolecule['Fe'] * gamma['Fe'] + actOx['Fe2O3']) / (presLiq['FeO'] + presLiq['Fe2O3'])
+        elif fAbMolecule['Fe'] == 0:
+            adjFact['Fe'] = 0
+        else:
+            adjFact['Fe'] = 1
+
+        # Ca 
+        if all(val != 0 for val in [presLiq['CaO'],fAbMolecule['Ca'],gamma['Ca']]):
+            adjFact['Ca'] = 1 / (presLiq['Al2O3'] / (gamma['Al'] * fAbMolecule['Al']))**0.5
+        elif fAbMolecule['Ca'] == 0 or gamma['Ca'] == 0:
+            adjFact['Ca'] = 0
+        else:
+            adjFact['Ca'] = 1
+
+        # Al
+        if all(val != 0 for val in [presLiq['Al2O3'],fAbMolecule['Al'],gamma['Al']]):
+            adjFact['Al'] = 1 / (presLiq['Al2O3'] / (gamma['Al'] * fAbMolecule['Al']))**0.5
+        elif fAbMolecule['Al'] == 0 or gamma['Al'] == 0:
+            adjFact['Al'] = 0
+        else:
+            adjFact['Al'] = 1
+
+        # Ti
+        if all(val != 0 for val in [presLiq['TiO2'],fAbMolecule['Ti'],gamma['Ti']]):
+            adjFact['Ti'] = 1 / (presLiq['TiO2'] / (gamma['Ti'] * fAbMolecule['Ti']))**0.5
+        elif fAbMolecule['Al'] == 0 or gamma['Al'] == 0:
+            adjFact['Ti'] = 0
+        else:
+            adjFact['Ti'] = 1
+
+        # Na
+        if all(val != 0 for val in [presLiq['Na2O'],fAbMolecule['Na'],gamma['Na']]):
+            adjFact['Na'] = 1 / (presLiq['Na2O'] / (gamma['Na'] * fAbMolecule['Na']))**0.5
+        elif fAbMolecule['Na'] == 0:
+            adjFact['Na'] = 0
+        else:
+            adjFact['Na'] = 1
+
+        # K
+        if all(val != 0 for val in [presLiq['K2O'],fAbMolecule['K'],gamma['K']]):
+            adjFact['K'] = 1 / (presLiq['K2O'] / (gamma['K'] * fAbMolecule['K']))**0.5
+        elif fAbMolecule['K'] == 0:
+            adjFact['K'] = 0
+        else:
+            adjFact['K'] = 1
+
+        '''
+        Adjustment factor for oxygen is governed by the most abundant volatile
+        metal oxide present in the melt.
+        '''
+        if presLiq['SiO2'] != 0 and fAbMolecule['Si'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Si'] * gamma['Si'] /\
+                            presLiq['SiO2']
+        elif fAbMolecule['Mg'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Mg'] * gamma['Mg'] /\
+                            presLiq['MgO']
+        elif fAbMolecule['Fe'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * (fAbMolecule['Fe'] * gamma['Fe'] + actOx['Fe2O3']) /\
+                            (presLiq['FeO'] + presLiq['Fe2O3'])
+        elif fAbMolecule['Ca'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Ca'] * gamma['Ca']  /\
+                            presLiq['CaO']
+        elif fAbMolecule['Al'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Al'] * gamma['Al']  /\
+                            presLiq['Al2O3']
+        elif fAbMolecule['Ti'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Ti'] * gamma['Ti']  /\
+                            presLiq['TiO2']
+        elif fAbMolecule['Na'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Na'] * gamma['Na']  /\
+                            presLiq['Na2O']
+        elif fAbMolecule['K'] != 0:
+            adjFact['O2'] = self.oxideO_ratio * fAbMolecule['K'] * gamma['K']  /\
+                            presLiq['K2O']
+        else:
+            adjFact['O2'] = 1             
+
+
+    # end number_density()
         
 # end melt_activities():

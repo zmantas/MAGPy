@@ -25,8 +25,6 @@ class simulation():
             self._metal2oxide[metal] = self._oxideNames[i]
 
         '''Constants'''
-        self._pConv = 1.01325e6/1.38046e-16 # _pConv converts the pressures into number         densities
-                                            # dyn/cm**2=>atm) / Boltzmann's constant (R/avog)
         self._avog = 6.023e23 # Avogadro's number
 
         '''Setting simulation parameters TODO: Make variable'''
@@ -239,10 +237,12 @@ class simulation():
 
         ''' Compute the partial pressures of the vapor species ''' 
         self.td.ion_chemistry(self.presGas,self.presLiq)
-        print(self.presGas,'\n')
-        print(self.presLiq)
 
+        ''' Calculate the number densities of each species and for each element'''
+        self.td.number_density(self.presGas)
 
+        ''' Recompute the adjustment factors for the key pressures ''' 
+        self.td.recompute_adjFact(self.presGas,self.presLiq,self.gamma,self.adjFact,self.fAbMolecule,self.actOx)
 
     # end start()
 
