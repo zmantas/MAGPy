@@ -801,7 +801,7 @@ class thermodynamic_data():
 
     # end activities_meltComplex()
 
-    def recompute_gamma(self, actOx, gamma, comp, fAbMolecule):
+    def recompute_gamma(self, actOx, gamma, count, fAbMolecule):
 
         ''' 
         Recompute the activity coefficients of the oxides (gamma['Element']) from the acitivites
@@ -869,10 +869,10 @@ class thermodynamic_data():
         #### gamma Fe3 ####
         # gamma['Fe3'] is an adjustment factor, not a true activity coefficient because
         # the mole fraction of Fe2O3 in the melt is not known.
-        if comp == 1:
+        if count == 1:
             gamma['Fe3'] = 1
         
-        elif comp != 1 and actOx['Fe2O3'] != 0 and fAbMolecule['Fe'] != 0:
+        elif count != 1 and actOx['Fe2O3'] != 0 and fAbMolecule['Fe'] != 0:
             gamma['Fe3'] = actOx['Fe2O3'] / (actOx['Fe2O3'] + self.actMeltComp['FE4'])
         
         else:

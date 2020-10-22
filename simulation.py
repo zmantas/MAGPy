@@ -13,7 +13,7 @@ class simulation():
 
         ''' Setting temperature '''
         self.T = T   # temperature of magma (Kelvin)
-        print(f'Calculating for a magma temperature of {self.T} K')
+        print(f'\nCalculating for a magma temperature of {self.T} K')
         
         ''' Importing metal and oxide name lists from '''
         self._metalNames = model_composition._metalNames
@@ -34,7 +34,7 @@ class simulation():
         self.iIt = 0    # counts the number of iterations needed to solve for the activities
         self.iFirst = 0
         self.perVap = 0 # number of iterations of vaporization process
-        self.comp = 0 # counting factor
+        self.count = 0 # counting factor
 
         '''Importing molecular oxide and metal weights'''
         self._mwOxides = dict(np.genfromtxt(mwOxides_fname,delimiter= ',',names=True,skip_header=1,\
@@ -149,12 +149,9 @@ class simulation():
 
     # end __init__()
 
-    def start(self):
+    def activity_gas_calculation(self,count): 
 
-        # print(self.gamma)
-        self.comp += 1 # Update counter (could possibly be made obselete by loop)
-
-        self.iit = 0 # Counter for it needed to solve for activities
+        self.iit = 0 # Counter needed to solve for activities
         while self.iit < 1e5: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
             ''' 
             Activities of oxides in the melt:
@@ -166,17 +163,16 @@ class simulation():
                     self.actOx[self._oxideNames[i]] = self.fAbMolecule[metal] * self.gamma[metal]
                 else:
                 # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
-                    if self.comp == 1:
+                    if count == 1:
                         self.actOx['Fe2O3'] = 0
                     else:
-                        pass # TODO: This variable needs to be defined 
-                        # self.actOx['Fe2O3'] = PFE2O3L * self.gamma['Fe3']
+                        self.actOx['Fe2O3'] = self.presLiq['Fe2O3'] * self.gamma['Fe3']
 
             ''' Computes activities of the complex melts '''        
             self.actMeltComp = self.td.activities_meltComplex(self.actOx)
 
             ''' Recomputing gamma grom the activities computed above '''
-            self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.comp,self.fAbMolecule)
+            self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.count,self.fAbMolecule)
             
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
@@ -193,7 +189,7 @@ class simulation():
             the activities are recomputed until a solution is foudn. 
             ''' 
             if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
-                print(f'The code has arrived at a solution for the gas activities after {self.iit+1} iteration(s).')
+                print(f'Solution for the gas activities found after {self.iit+1} iteration(s).')
                 break
 
             if self.iit > 50:
@@ -214,35 +210,59 @@ class simulation():
         # end while loop
 
         '''
-        Activity calculations are finished. Reset number of iterations for 
-        activity calculations and continue to gas chemistry computations.
-        '''
-        self.iit = 0
-        '''
         .....................................................................
         GAS CHEMISTRY CALCULATIONS
         Calculate gas chemistry in equilibrium with the calculated activities
         from above.
-
-        THIS IS PROBABLY ANOTHER WHILE LOOP
-
         .....................................................................
-        '''
-        '''
-        ADJUST THE ABUNDANCES OF THE MAJOR GASES OF EACH ELEMENT
-        these abundances are used to calculate all other gas chemistry
-        '''
-        for gas in self.gas_names:
-            self.presGas[gas] = self.presGas[gas]* self.adjFact[gas]
 
-        ''' Compute the partial pressures of the vapor species ''' 
-        self.td.ion_chemistry(self.presGas,self.presLiq)
+        The adjustment factors are recomputed and the gas chemistry is repeated until 
+        a solution where the adjFact ~1 or 0 is converged upon.
+        '''
+        self.iit = 0 # counter
+        self.dif_range = 2.30359e-6 # Max amount that the adjFact can difer from 1
+        while not all( 1-self.dif_range < fact < 1+self.dif_range or fact == 0 \
+                   for fact in list(self.adjFact.values())) or self.iit == 0:
+            '''
+            ADJUST THE ABUNDANCES OF THE MAJOR GASES OF EACH ELEMENT
+            these abundances are used to calculate all other gas chemistry
+            '''
+            for gas in self.gas_names:
+                self.presGas[gas] = self.presGas[gas]* self.adjFact[gas]
 
-        ''' Calculate the number densities of each species and for each element'''
-        self.td.number_density(self.presGas)
+            ''' Compute the partial pressures of the vapor species ''' 
+            self.td.ion_chemistry(self.presGas,self.presLiq)
 
-        ''' Recompute the adjustment factors for the key pressures ''' 
-        self.td.recompute_adjFact(self.presGas,self.presLiq,self.gamma,self.adjFact,self.fAbMolecule,self.actOx)
+            ''' Calculate the number densities of each species and for each element'''
+            self.td.number_density(self.presGas)
+
+            ''' Recompute the adjustment factors for the key pressures ''' 
+            self.td.recompute_adjFact(self.presGas,self.presLiq,self.gamma,self.adjFact,self.fAbMolecule,self.actOx)
+            
+            ''' While loop break '''
+            self.iit += 1 # updating counter
+            if self.iit >= 1e5: 
+                raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
+
+        print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
+
+        # end while loop
+
+    # end activity_gas_calculation
+
+    def start(self):
+
+        '''
+        If this is the first run through activity/gas calculations for this step
+        then go back to activity calculations and add in the iron oxides
+        Fe2O3 and Fe3O4. Repeat activity and gas calculations until answers converge. 
+        '''
+        self.count += 1 # Update counter 
+        self.activity_gas_calculation(self.count) 
+        self.count += 1
+        print('\nAdding iron oxides and repeating calculations.')
+        self.activity_gas_calculation(self.count)
+        
 
     # end start()
 

@@ -47,7 +47,6 @@ class model_comp():
         print(f'Model read from {self.input_fname} is composed of:')
         for name, wt in self.wt_oxides.items():
             print(f'{name}: {wt}')
-
     # end print()
 
 # end model_comp()
