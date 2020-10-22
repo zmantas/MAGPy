@@ -1007,21 +1007,22 @@ class thermodynamic_data():
 
         '''
         Ion chemistry:
-        PENEG = P(e-,g), PNACAT = P(Na+,g), PKCAT = P(K+,g)
-        PENEG = PNACAT + PKCAT; 
-        HENCE PENEG = DSQRT((PNACAT + PKCAT)*PENEG)
+        PENEG = P(e-,g), presGas['NaCat'] = P(Na+,g), presGas['KCat'] = P(K+,g)
+        PENEG = presGas['NaCat'] + presGas['KCat']; 
+        HENCE PENEG = DSQRT((presGas['NaCat'] + PKCAT)*PENEG)
         '''
-        self.PENEG = np.sqrt(self.ENACAT*presGas['Na'] + self.EKCAT*presGas['K'])
+        # Energetic electron gas (???)
+        presGas['EnE'] = np.sqrt(self.ENACAT*presGas['Na'] + self.EKCAT*presGas['K'])
 
         if presGas['Na'] != 0:
-            self.PNACAT = self.ENACAT * presGas['Na']/self.PENEG
+            presGas['NaCat'] = self.ENACAT * presGas['Na']/presGas['EnE']
         else:
-            self.PNACAT = 0
+            presGas['NaCat'] = 0
 
         if presGas['K'] != 0:
-            self.PKCAT = self.EKCAT * presGas['K']/self.PENEG
+            presGas['KCat'] = self.EKCAT * presGas['K']/presGas['EnE']
         else: 
-            self.PKCAT = 0
+            presGas['KCat'] = 0
 
     # end ion_chemistry()
 
@@ -1033,9 +1034,9 @@ class thermodynamic_data():
             self.rho[gas] = self._pConv * presGas[gas] / self.T
 
         # TODO find suitable names for these species
-        self.CENEG  = self._pConv * self.PENEG  / self.T
-        self.CNACAT = self._pConv * self.PNACAT / self.T
-        self.CKCAT  = self._pConv * self.PKCAT  / self.T
+        self.CENEG  = self._pConv * presGas['EnE']  / self.T
+        self.CNACAT = self._pConv * presGas['NaCat'] / self.T
+        self.CKCAT  = self._pConv * presGas['KCat']  / self.T
 
         ''' Calculating for each element ''' 
         self.totRho = {}

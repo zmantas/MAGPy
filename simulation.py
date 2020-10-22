@@ -262,7 +262,29 @@ class simulation():
         self.count += 1
         print('\nAdding iron oxides and repeating calculations.')
         self.activity_gas_calculation(self.count)
-        
+
+        ''' Calculating total gas pressure '''
+        self.tot_gasPres = {}
+        for name_el in self.abEl:
+            self.tot_gasPres[name_el] = 0
+            for name_gas in self.presGas:
+                if name_el in name_gas:
+                    self.tot_gasPres[name_el] += self.presGas[name_gas]
+
+        self.tot_gasPres['O'] = self.presGas['O'] + self.presGas['O2'] # Adding the oxygen pressure 
+        self.tot_gasPres['EnE'] = self.presGas['EnE'].copy() 
+        self.totPres = sum(self.tot_gasPres.values()) # total pressure
+
+        ''' Calculating the gas mole fractions (P/PTOT) '''
+        self.gasMoleFrac = {}
+        for gas in self.presGas:
+            self.gasMoleFrac[gas] = self.presGas[gas]/self.totPres
+
+        ''' Calculate the total mole fraction of an element in the gas '''
+        self.sum_totRho = sum(self.td.totRho.values())
+        self.totMolFracEl = {}
+        for element in self.td.totRho:
+            self.totMolFracEl[element] = self.td.totRho[element]/self.sum_totRho
 
     # end start()
 
@@ -314,6 +336,27 @@ class simulation():
             file.write(f'{ox:<12} {self.actOx[ox]:.6e}\n')
         for comp in self.actMeltComp:
             file.write(f'{self.td.nameMeltComp[comp]:<12} {self.actMeltComp[comp]:.6e}\n') 
+
+        ''' Gas pressure partial vapor ''' 
+        file.write('\nGas partial pressures (P) in vapor \n\n')
+        file.write(f'{"O":<8} {self.presGas["O"]:.6e}\n')
+        file.write(f'{"O2":<8} {self.presGas["O2"]:.6e}\n')
+        for name_el in self.abEl:  
+            for gas in self.presGas:
+                if name_el in gas:
+                    file.write(f'{gas:<8} {self.presGas[gas]:.6e}\n')
+        file.write(f'{"e-":<8} {self.presGas["EnE"]:.6e}\n')
+        file.write(f'\n{"Total":<8} {self.totPres:.6e}\n')
+
+        ''' Gas mole fractions (X) in vapor ''' 
+        file.write('\nGas mole fractions (X) in vapor \n\n')
+        file.write(f'{"O":<8} {self.gasMoleFrac["O"]:.6e}\n')
+        file.write(f'{"O2":<8} {self.gasMoleFrac["O2"]:.6e}\n')
+        for name_el in self.abEl:  
+            for gas in self.gasMoleFrac:
+                if name_el in gas:
+                    file.write(f'{gas:<8} {self.gasMoleFrac[gas]:.6e}\n')
+        file.write(f'{"e-":<8} {self.gasMoleFrac["EnE"]:.6e}\n')
 
         ''' Closing the file ''' 
         file.close()
