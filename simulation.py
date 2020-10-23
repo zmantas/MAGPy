@@ -100,8 +100,17 @@ class simulation():
             self.abEl['Na'] = self.numMolOx['Na2O'] * 2 * self._avog
             self.abEl['K']  = self.numMolOx['K2O']  * 2 * self._avog  
 
-        ''' Renomarlizing the abundances ''' 
+        ''' Initial weight of melt so that weight% vaporized can be calculated later '''
+        self.mass = 0
+        for element in self.abEl:
+            for oxide in self._mwOxides:
+                if element in oxide:
+                    if element in ['Al','Na','K']:
+                        self.mass += 0.5 * self.abEl[element] * self._mwOxides[oxide]
+                    elif oxide != 'Fe2O3':
+                        self.mass += self.abEl[element] * self._mwOxides[oxide]
 
+        ''' Renomarlizing the abundances ''' 
         # Total atomic abundance of all the elements (except 0)
         self.abETot = sum(self.abEl.values())
         # Molecular abundance of all the oxides
@@ -285,6 +294,68 @@ class simulation():
         self.totMolFracEl = {}
         for element in self.td.totRho:
             self.totMolFracEl[element] = self.td.totRho[element]/self.sum_totRho
+
+        if self.count == 1:
+            #TODO: print the calculated aquilibrium abundances before removing mass for the
+            #      first vaporisation step
+            pass
+
+        '''
+        Compute the step size.  The most volatile element in the melt will be 
+        reduced by 5%.  The computation is done for both the mole fractions of
+        the elements and the atomic abundances because once PLAN(element) (self.abEl) becomes
+        smaller than ~1D-35, it gets put to zero due to the limitations of FORTRAN.
+        The mole fractions are renormalized below and are used to compute the 
+        oxide mole fractions.  The PLAN(element) values are 
+        used to compute the fraction vaporized.
+        TODO: CHECK IF THIS STILL HOLDS FOR PYTHON
+        '''
+
+        # Calculating volatilities using mole fraction and atomic abundance
+        volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] \
+                        for element in self.fAbAtom}
+        # Calculating vaporisation fraction using most volatile element
+        self.vapoFrac = 0.05/max(volatilities.values())
+
+        # Calculating volatilities using mole fraction and elemental abundance
+        volatilities = {element: self.totMolFracEl[element]/self.abEl[element] \
+                        for element in self.abEl}
+        # Calculating vaporisation fraction using most volatile element
+        self.vapoFrac1 = 0.05/max(volatilities.values())        
+
+        '''
+        Compute the new abundance of each element to be used in the next
+        vaporization step. 
+        CON(El) = mole fraction in melt
+        Plan(El) = total atomic abundance
+        if plan(el) = 0, then set con(el) = 0 also.
+        '''
+        self.fAbAtom = {element: self.fAbAtom[element] - self.vapoFrac*self.totMolFracEl[element] \
+                        for element in self.fAbAtom}
+
+        self.abEl = {element: self.abEl[element] - self.vapoFrac1 * self.totMolFracEl[element]\
+                     for element in self.abEl}
+
+        for element in self.abEl:
+            if self.abEl[element] <= 0:
+                self.abEl[element] == 0
+                self.fAbAtom[element] == 0
+
+        self.abETot_new = sum(self.abEl.values())
+        self.abRatio = self.abETot_new/self.abETot
+
+        self.vap = 1 - self.abRatio # fraction of magma that is vaporized
+       
+        ''' Calculate weight percent vaporized '''
+        self.massVapo = 0
+        for element in self.abEl:
+            for oxide in self._mwOxides:
+                if element in oxide:
+                    if element in ['Al','Na','K']:
+                        self.massVapo += 0.5 * self.abEl[element] * self._mwOxides[oxide]
+                    elif oxide != 'Fe2O3':
+                        self.massVapo += self.abEl[element] * self._mwOxides[oxide]
+        self.massFrac = (self.mass-self.massVapo)/self.mass
 
     # end start()
 
