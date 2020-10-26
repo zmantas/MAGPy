@@ -44,10 +44,9 @@ def main():
 
     ''' Start simulation '''
     sim = simulation(model,T)
+    sim.print_init(output_fname) # Write inital values to output file
     sim.start()
-
-    ''' Write to output ''' 
-    sim.write_to_output(output_fname)
+    sim.print_results(output_fname) 
 
 if __name__ == "__main__":
     sys.exit(main())

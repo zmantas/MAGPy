@@ -28,7 +28,7 @@ class simulation():
         self._avog = 6.023e23 # Avogadro's number
 
         '''Setting simulation parameters TODO: Make variable'''
-        self.iRep = 2   
+        self.iRep = 0   
         self.iStep = 0  # counts the number of vaporization steps
         self.iPrn = 0   # used to determine which steps are printed to the output file
         self.iIt = 0    # counts the number of iterations needed to solve for the activities
@@ -158,7 +158,7 @@ class simulation():
 
     # end __init__()
 
-    def activity_gas_calculation(self,count): 
+    def activity_gas_calculation(self,addF2O3=True): 
 
         self.iit = 0 # Counter needed to solve for activities
         while self.iit < 1e5: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
@@ -172,15 +172,17 @@ class simulation():
                     self.actOx[self._oxideNames[i]] = self.fAbMolecule[metal] * self.gamma[metal]
                 else:
                 # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
-                    if count == 1:
-                        self.actOx['Fe2O3'] = 0
-                    else:
+                    if addF2O3:
                         self.actOx['Fe2O3'] = self.presLiq['Fe2O3'] * self.gamma['Fe3']
+                    else:
+                        self.actOx['Fe2O3'] = 0
+            # print(f'SiO2 {self.actOx["SiO2"]}, MgO {self.actOx["MgO"]}')
+            # print(f'Fe2O3 {self.actOx["Fe2O3"]}')
 
             ''' Computes activities of the complex melts '''        
             self.actMeltComp = self.td.activities_meltComplex(self.actOx)
 
-            ''' Recomputing gamma grom the activities computed above '''
+            ''' Recomputing gamma from the activities computed above '''
             self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.count,self.fAbMolecule)
             
             ''' Compute ratio of newly computed activity and previous activity '''
@@ -198,10 +200,10 @@ class simulation():
             the activities are recomputed until a solution is foudn. 
             ''' 
             if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
-                print(f'Solution for the gas activities found after {self.iit+1} iteration(s).')
+                #print(f'Solution for the gas activities found after {self.iit+1} iteration(s).')
                 break
 
-            if self.iit > 50:
+            if self.iit > 500:
                 for element in self.gamma_new:
                     self.gamma_new[element] = (self.gamma_new[element] * self.gamma[element]**4)**(1/5)
             elif self.iit > 30:
@@ -213,8 +215,12 @@ class simulation():
 
             self.gamma = self.gamma_new.copy() # Update gamma values
             self.iit += 1 # updating counter
+            
+            # print(f'gamma Si {self.gamma["Si"]:.6e} Mg {self.gamma["Mg"]:.6e} Fe Si {self.gamma["Fe"]:.6e}')
+            # print(f'iit {self.iit}')
             if self.iit >= 1e5: 
                 raise RuntimeError('Max recursion limit reached while calculating activities.')
+
 
         # end while loop
 
@@ -253,24 +259,13 @@ class simulation():
             if self.iit >= 1e5: 
                 raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
 
-        print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
+        #print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
 
         # end while loop
 
     # end activity_gas_calculation
 
-    def start(self):
-
-        '''
-        If this is the first run through activity/gas calculations for this step
-        then go back to activity calculations and add in the iron oxides
-        Fe2O3 and Fe3O4. Repeat activity and gas calculations until answers converge. 
-        '''
-        self.count += 1 # Update counter 
-        self.activity_gas_calculation(self.count) 
-        self.count += 1
-        print('\nAdding iron oxides and repeating calculations.')
-        self.activity_gas_calculation(self.count)
+    def vaporisation(self):
 
         ''' Calculating total gas pressure '''
         self.tot_gasPres = {}
@@ -343,9 +338,8 @@ class simulation():
 
         self.abETot_new = sum(self.abEl.values())
         self.abRatio = self.abETot_new/self.abETot
-
         self.vap = 1 - self.abRatio # fraction of magma that is vaporized
-       
+        
         ''' Calculate weight percent vaporized '''
         self.massVapo = 0
         for element in self.abEl:
@@ -375,9 +369,35 @@ class simulation():
         # Relative abundances of metals by atom
         self.fAbAtom = {el : self.fAbAtom[el]/self.conTot_el for el in self.fAbAtom}
 
-        ''' Update counters '''
-        self.iPrn += 1 # Used to track how often to print
-        self.iStep += 1 # Used to track nuber of vaporization steps
+    # end vaporisation
+
+    def start(self):
+
+        self.vap = 0
+
+        '''
+        If this is the first run through activity/gas calculations for this step
+        then go back to activity calculations and add in the iron oxides
+        Fe2O3 and Fe3O4. Repeat activity and gas calculations until answers converge. 
+        '''
+        self.activity_gas_calculation(addF2O3=False)
+        
+        while self.vap < 1 and self.iRep < 5000:
+            print(self.iRep)
+
+            self.activity_gas_calculation()
+            print(self.gamma['Si']) 
+            self.vaporisation()
+
+            print(f'{self.vap:.6e}')
+
+            ''' Update counters '''
+            self.iPrn += 1 # Used to track how often to print
+            self.iStep += 1 # Used to track nuber of vaporization steps
+            self.iRep += 1 
+
+        # CHECK IF self.vap => 1
+        # IF NOT go back to calculating activities
 
     # end start()
 
@@ -393,7 +413,7 @@ class simulation():
 
     # end set_perVap()
 
-    def write_to_output(self,output_fname):
+    def print_init(self,output_fname):
 
         ''' Opening the file '''
         print(f'Writing output to: {output_fname}')
@@ -422,6 +442,12 @@ class simulation():
         file.write(f'\nRelative atomic abundances of metals\n \n')
         for name in self.fAbAtom:
             file.write(f'{name:<3}= {self.fAbAtom[name]:.6e}\n')
+
+        file.close()
+
+    def print_results(self,output_fname):
+
+        file = open(output_fname, "a")
 
         ''' The activity data '''
         file.write(f'\nActivity coefficients (G) of oxides in the melt\n \n')
@@ -455,7 +481,11 @@ class simulation():
                     file.write(f'{gas:<8} {self.gasMoleFrac[gas]:.6e}\n')
         file.write(f'{"e-":<8} {self.gasMoleFrac["EnE"]:.6e}\n')
 
-        ''' Closing the file ''' 
+        ''' Vaporized fractions '''
+        file.write('\nFraction of magma that is vaporized\n\n')
+        file.write(f'Vap. fraction  = {self.vap:.6e}\n')
+        file.write(f'Weight percent = {self.massFrac:.6e}\n')
+
         file.close()
 
     # end write_to_output()

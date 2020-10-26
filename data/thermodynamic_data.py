@@ -124,7 +124,7 @@ class thermodynamic_data():
         K = PFE2O3L / (PFEG**2 * PO2G**0.5)
         HENCE P(FE2O3L) = 10**AD * PFEG**2 * PO2G**0.5
         '''
-        self.AD = -2.26722053113 + 7.56430936141329 / self.T
+        self.AD = -2.26722053113e1 + 7.56430936141329e4 / self.T
         self.EFE2O3L = 10**self.AD
         
         '''
@@ -134,7 +134,7 @@ class thermodynamic_data():
         K = PFE3O4L / (PFEG**3 * PO2G**0.5)
         HENCE P(FE3O4L) = 10**AE * PFEG**3 * PO2G**0.5
         '''
-        self.AE = -3.19907301154 + 1.110526206139634 / self.T
+        self.AE = -3.19907301154e1 + 1.110526206139634e5 / self.T
         self.EFE3O4L = 10**self.AE
 
         '''
@@ -594,6 +594,7 @@ class thermodynamic_data():
         '''
         self.nameMeltComp['FE1'] = 'FeTiO3'
         self.actMelt['FE1'] = 10**(- 0.51 + 3569/self.T)
+        # print('YOO',self.actMelt['FE1'])
 
         '''
         2FeO(liq) + SiO2(liq) = Fe2SiO4(liq)
@@ -618,7 +619,8 @@ class thermodynamic_data():
         Fe3O4 data from Barin 1995
         '''
         self.nameMeltComp['FE4'] = 'Fe3O4'
-        self.actMelt['FE4'] = 10**(-4.385894544 + 4.3038155175436/self.T - 3.1050205223386055/self.T**2.0)
+        self.actMelt['FE4'] = 10**(-4.385894544e-1 + 4.3038155175436e3/self.T\
+                                   -3.1050205223386055e6/self.T**2.0)
 
         '''
         Na2O(liq) + SiO2(liq) = Na2SiO3(liq)
@@ -760,6 +762,7 @@ class thermodynamic_data():
         self.actMeltComp['CA12'] = self.actMelt['CA12'] * actOx['CaO'] * actOx['Al2O3']**6
 
         self.actMeltComp['FE1'] = self.actMelt['FE1'] * actOx['FeO'] * actOx['TiO2']
+        # print('FE1',self.actMeltComp['FE1'], self.actMelt['FE1'], actOx['FeO'], actOx['TiO2'])
         
         self.actMeltComp['FE2'] = self.actMelt['FE2'] * actOx['FeO']**2 * actOx['SiO2']
         
@@ -865,6 +868,8 @@ class thermodynamic_data():
                                          )
         else:
             gamma['Fe'] = 0
+
+        # print(f"{actOx['FeO']:.6e}, {self.actMeltComp['FE1']:.6e}, {self.actMeltComp['FE3']:.6e}, {self.actMeltComp['FE2']:.6e}, {actOx['Fe2O3']:.6e}, {self.actMeltComp['FE4']:.6e}")
 
         #### gamma Fe3 ####
         # gamma['Fe3'] is an adjustment factor, not a true activity coefficient because
