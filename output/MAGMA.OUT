@@ -13,27 +13,38 @@ Na2O     4.6000e-01    4.438764e-01
 K2O      9.0000e-02    5.714306e-02
 Total    9.6770e+01    1.000000e+02
 
+Atomic abundances on cosmochemical scale
+
+Si  =  1.000000e+06
+Mg  =  8.419211e+05
+Al  =  1.010916e+05
+Ti  =  3.833475e+03
+Fe  =  2.045034e+05
+Ca  =  1.237520e+05
+Na  =  1.798891e+04
+K   =  2.437592e+03
+
 Oxide Mole Fraction (F) in Silicate
  
-SiO2  = 4.473785e-01
-MgO   = 3.766574e-01
-Al2O3 = 2.261311e-02
-TiO2  = 1.715015e-03
-FeO   = 9.149093e-02
-CaO   = 5.536397e-02
-Na2O  = 4.235711e-03
-K2O   = 5.452902e-04
+SiO2  = 4.474735e-01
+MgO   = 3.767374e-01
+Al2O3 = 2.261792e-02
+TiO2  = 1.715379e-03
+FeO   = 9.150986e-02
+CaO   = 5.537572e-02
+Na2O  = 4.024780e-03
+K2O   = 5.453789e-04
 
 Relative atomic abundances of metals
  
-Si = 4.354498e-01
-Mg = 3.666144e-01
-Al = 4.402033e-02
-Ti = 1.669286e-03
-Fe = 8.905096e-02
-Ca = 5.388776e-02
-Na = 7.833266e-03
-K  = 1.061449e-03
+Si = 4.356296e-01
+Mg = 3.667658e-01
+Al = 4.403851e-02
+Ti = 1.669975e-03
+Fe = 8.908774e-02
+Ca = 5.391001e-02
+Na = 7.836501e-03
+K  = 1.061887e-03
 
 Activity coefficients (G) of oxides in the melt
  

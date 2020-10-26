@@ -357,6 +357,28 @@ class simulation():
                         self.massVapo += self.abEl[element] * self._mwOxides[oxide]
         self.massFrac = (self.mass-self.massVapo)/self.mass
 
+        ''' Renormalize the abundances '''
+        self.conTot_el = sum(self.fAbAtom.values())
+        self.conTot_ox = 0
+        for el in self.fAbAtom:
+            if el in ['Al','Na','K']:
+                 self.conTot_ox += 0.5 * self.fAbAtom[el]
+            else:
+                self.conTot_ox += self.fAbAtom[el] 
+
+        for el in self.fAbMolecule: # Relative abundnaces of metals by moleculre
+            if el in ['Al','Na','K']:
+                 self.fAbMolecule[el] = 0.5 * self.fAbAtom[el]/self.conTot_ox
+            else:
+                self.fAbMolecule[el] = self.fAbAtom[el]/self.conTot_ox 
+
+        # Relative abundances of metals by atom
+        self.fAbAtom = {el : self.fAbAtom[el]/self.conTot_el for el in self.fAbAtom}
+
+        ''' Update counters '''
+        self.iPrn += 1 # Used to track how often to print
+        self.iStep += 1 # Used to track nuber of vaporization steps
+
     # end start()
 
     def set_temp(self,T):
@@ -387,6 +409,10 @@ class simulation():
             file.write(f'{ox:<5}    {self.wt_oxides[ox]:<9.4e}    {self.mPerc[ox]:.6e}\n') 
         file.write(f'Total    {self.totWt:<9.4e}    {self.totPerc:.6e}\n')
 
+        ''' Abundances '''
+        file.write('\nAtomic abundances on cosmochemical scale\n\n')
+        for el in self.abEl:
+            file.write(f'{el:<4}=  {self.abEl[el]:.6e}\n')
         ''' Oxide Mole fraction in silicate '''
         file.write(f'\nOxide Mole Fraction (F) in Silicate\n \n')
         for name in self.fAbMolecule:
