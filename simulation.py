@@ -28,13 +28,12 @@ class simulation():
         self._avog = 6.023e23 # Avogadro's number
 
         '''Setting simulation parameters TODO: Make variable'''
-        self.iRep = 0   
+        self.iRep = 0  
         self.iStep = 0  # counts the number of vaporization steps
         self.iPrn = 0   # used to determine which steps are printed to the output file
         self.iIt = 0    # counts the number of iterations needed to solve for the activities
         self.iFirst = 0
         self.perVap = 0 # number of iterations of vaporization process
-        self.count = 0 # counting factor
 
         '''Importing molecular oxide and metal weights'''
         self._mwOxides = dict(np.genfromtxt(mwOxides_fname,delimiter= ',',names=True,skip_header=1,\
@@ -159,13 +158,18 @@ class simulation():
     # end __init__()
 
     def activity_gas_calculation(self,addF2O3=True): 
-
+        # print(addF2O3)
         self.iit = 0 # Counter needed to solve for activities
-        while self.iit < 1e5: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
+        while self.iit < 1e8: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
+            print('IIT',self.iit, self.iRep, self.iStep)
             ''' 
             Activities of oxides in the melt:
             - formula: activity = molecular abundance * activity coefficient
             '''
+            # if self.iStep == 806:
+            #     print('Before actox calc')
+            #     print(self.fAbMolecule['Na'], self.gamma['Na'])
+
             self.actOx = {}
             for i,metal in enumerate(self._metalNames):
                 if metal != 'Fe3':
@@ -174,16 +178,18 @@ class simulation():
                 # Activity of Fe2O3 is estimated using gas chemistry, then all acitivities are recomputed
                     if addF2O3:
                         self.actOx['Fe2O3'] = self.presLiq['Fe2O3'] * self.gamma['Fe3']
+                        # print('Fe2O3',self.actOx['Fe2O3'])
+                        # print(self.presLiq['Fe2O3'],self.gamma['Fe3'])
                     else:
                         self.actOx['Fe2O3'] = 0
             # print(f'SiO2 {self.actOx["SiO2"]}, MgO {self.actOx["MgO"]}')
             # print(f'Fe2O3 {self.actOx["Fe2O3"]}')
 
             ''' Computes activities of the complex melts '''        
-            self.actMeltComp = self.td.activities_meltComplex(self.actOx)
+            self.actMeltComp = self.td.activities_meltComplex(self.actOx,self.iStep)
 
             ''' Recomputing gamma from the activities computed above '''
-            self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,self.count,self.fAbMolecule)
+            self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,addF2O3,self.fAbMolecule,self.iStep)
             
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
@@ -199,6 +205,13 @@ class simulation():
             If this is not the case, then the activity coefficients are adjusted and 
             the activities are recomputed until a solution is foudn. 
             ''' 
+            # print(list(self.gamRat.values()))
+            if np.sum(np.isnan(list(self.gamRat.values())))>0:
+                print('gamrat',self.gamRat)
+                print('gamnew',self.gamma_new)
+                print('gamma',self.gamma)
+                raise RuntimeError('WTF BRO THERE IS NAN BREAD')
+
             if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
                 #print(f'Solution for the gas activities found after {self.iit+1} iteration(s).')
                 break
@@ -218,7 +231,7 @@ class simulation():
             
             # print(f'gamma Si {self.gamma["Si"]:.6e} Mg {self.gamma["Mg"]:.6e} Fe Si {self.gamma["Fe"]:.6e}')
             # print(f'iit {self.iit}')
-            if self.iit >= 1e5: 
+            if self.iit >= 1e8: 
                 raise RuntimeError('Max recursion limit reached while calculating activities.')
 
 
@@ -256,7 +269,7 @@ class simulation():
             
             ''' While loop break '''
             self.iit += 1 # updating counter
-            if self.iit >= 1e5: 
+            if self.iit >= 1e8: 
                 raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
 
         #print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
@@ -290,10 +303,10 @@ class simulation():
         for element in self.td.totRho:
             self.totMolFracEl[element] = self.td.totRho[element]/self.sum_totRho
 
-        if self.count == 1:
+        # if self.addF2O3 == 1:
             #TODO: print the calculated aquilibrium abundances before removing mass for the
             #      first vaporisation step
-            pass
+            # pass
 
         '''
         Compute the step size.  The most volatile element in the melt will be 
@@ -307,16 +320,19 @@ class simulation():
         '''
 
         # Calculating volatilities using mole fraction and atomic abundance
-        volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] \
-                        for element in self.fAbAtom}
+        volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] if self.fAbAtom[element] > 1e-20 else 0 for element in self.fAbAtom}
         # Calculating vaporisation fraction using most volatile element
+        # print(volatilities.values())
+        # print(max(volatilities.values()))
         self.vapoFrac = 0.05/max(volatilities.values())
 
+
         # Calculating volatilities using mole fraction and elemental abundance
-        volatilities = {element: self.totMolFracEl[element]/self.abEl[element] \
-                        for element in self.abEl}
+        volatilities1 = {element: self.totMolFracEl[element]/self.abEl[element] if self.fAbAtom[element] > 1e-20 else 0 for element in self.abEl}
         # Calculating vaporisation fraction using most volatile element
-        self.vapoFrac1 = 0.05/max(volatilities.values())        
+        # print(volatilities.values())
+        # print(max(volatilities.values()))
+        self.vapoFrac1 = 0.05/max(volatilities1.values())        
 
         '''
         Compute the new abundance of each element to be used in the next
@@ -332,9 +348,16 @@ class simulation():
                      for element in self.abEl}
 
         for element in self.abEl:
-            if self.abEl[element] <= 0:
-                self.abEl[element] == 0
-                self.fAbAtom[element] == 0
+            if element == 'Fe':
+                if self.abEl[element] <= 2e-20:
+                    self.abEl[element] = 0
+                    self.fAbAtom[element] = 0    
+            else:
+                if self.abEl[element] <= 0:
+                    # print(element, ' less than 0')
+                    self.abEl[element] = 0
+                    self.fAbAtom[element] = 0
+                    # print('check it',self.abEl[element],self.fAbAtom[element])
 
         self.abETot_new = sum(self.abEl.values())
         self.abRatio = self.abETot_new/self.abETot
@@ -352,8 +375,8 @@ class simulation():
         self.massFrac = (self.mass-self.massVapo)/self.mass
 
         ''' Renormalize the abundances '''
-        self.conTot_el = sum(self.fAbAtom.values())
-        self.conTot_ox = 0
+        self.conTot_el = sum(self.fAbAtom.values()) # Mole fraction of elemens
+        self.conTot_ox = 0  # Mole fraction of oxides
         for el in self.fAbAtom:
             if el in ['Al','Na','K']:
                  self.conTot_ox += 0.5 * self.fAbAtom[el]
@@ -364,8 +387,9 @@ class simulation():
             if el in ['Al','Na','K']:
                  self.fAbMolecule[el] = 0.5 * self.fAbAtom[el]/self.conTot_ox
             else:
-                self.fAbMolecule[el] = self.fAbAtom[el]/self.conTot_ox 
-
+                 self.fAbMolecule[el] = self.fAbAtom[el]/self.conTot_ox 
+        # print(self.fAbMolecule['Na'], self.abEl['Na'])
+        # print(self.fAbAtom['Na'],self.conTot_ox)
         # Relative abundances of metals by atom
         self.fAbAtom = {el : self.fAbAtom[el]/self.conTot_el for el in self.fAbAtom}
 
@@ -380,16 +404,19 @@ class simulation():
         then go back to activity calculations and add in the iron oxides
         Fe2O3 and Fe3O4. Repeat activity and gas calculations until answers converge. 
         '''
-        self.activity_gas_calculation(addF2O3=False)
         
-        while self.vap < 1 and self.iRep < 5000:
-            print(self.iRep)
+        file = open('magpy_trackers.csv', "w")
 
+        while self.vap < 1 and self.iRep <= 2647:
+            # print(self.iRep)
+            self.activity_gas_calculation(addF2O3=False)
             self.activity_gas_calculation()
-            print(self.gamma['Si']) 
+            # print(self.gamma['Si']) 
             self.vaporisation()
 
-            print(f'{self.vap:.6e}')
+            # print(f'{self.vap:.6e}')
+
+            file.write(f'{self.iRep} {self.vap:.6e}\n')
 
             ''' Update counters '''
             self.iPrn += 1 # Used to track how often to print

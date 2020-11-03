@@ -716,7 +716,7 @@ class thermodynamic_data():
 
     # end activities_melt()
 
-    def activities_meltComplex(self,actOx):
+    def activities_meltComplex(self,actOx,istep):
         '''
         Calculates the activities for the complex species in the melt 
         (see activities_melt for relevant equations)
@@ -776,6 +776,11 @@ class thermodynamic_data():
         
         self.actMeltComp['NA3'] = self.actMelt['NA3'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3']) * actOx['SiO2']
         
+        # if istep == 806:
+            # print('\nMELTCOMP NA3')
+            # print(self.actMeltComp['NA3'])
+            # print(self.actMelt['NA3'], 'sqrt(',actOx['Na2O'],')', 'sqrt(',actOx['Al2O3'],')', actOx['SiO2'],'\n')
+
         self.actMeltComp['NA4'] = self.actMelt['NA4'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3']) * actOx['SiO2']**3
         
         self.actMeltComp['NA5'] = self.actMelt['NA5'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3'])
@@ -804,7 +809,7 @@ class thermodynamic_data():
 
     # end activities_meltComplex()
 
-    def recompute_gamma(self, actOx, gamma, count, fAbMolecule):
+    def recompute_gamma(self, actOx, gamma, addF2O3, fAbMolecule, istep):
 
         ''' 
         Recompute the activity coefficients of the oxides (gamma['Element']) from the acitivites
@@ -846,6 +851,16 @@ class thermodynamic_data():
                                            )
         else:
             gamma['Si'] = 0
+        # if istep == 806:
+            # print('actox[SiO2]',actOx['SiO2'])
+            # print('new gamma:',gamma['Si'])
+            # print('NA3', self.actMeltComp['NA3'])
+            # print('\n',self.actMeltComp['MG1'], self.actMeltComp['MG2'], \
+            #                                self.actMeltComp['CA4'] , self.actMeltComp['CA8'] , \
+            #                                self.actMeltComp['CA10'], self.actMeltComp['CA11'], \
+            #                                self.actMeltComp['FE2'] , self.actMeltComp['NA1'] , \
+            #                                self.actMeltComp['NA3'] , self.actMeltComp['K1']  , \
+            #                                self.actMeltComp['K3'])
 
         #### gamma Mg ####
         if actOx['MgO'] != 0:
@@ -874,10 +889,10 @@ class thermodynamic_data():
         #### gamma Fe3 ####
         # gamma['Fe3'] is an adjustment factor, not a true activity coefficient because
         # the mole fraction of Fe2O3 in the melt is not known.
-        if count == 1:
+        if not addF2O3:
             gamma['Fe3'] = 1
         
-        elif count != 1 and actOx['Fe2O3'] != 0 and fAbMolecule['Fe'] != 0:
+        elif addF2O3 and actOx['Fe2O3'] != 0 and fAbMolecule['Fe'] != 0:
             gamma['Fe3'] = actOx['Fe2O3'] / (actOx['Fe2O3'] + self.actMeltComp['FE4'])
         
         else:
@@ -1102,7 +1117,7 @@ class thermodynamic_data():
             adjFact['MgO'] = fAbMolecule['Mg'] * gamma['Mg'] / presLiq['MgO'] 
 
         # Fe
-        if presLiq['FeO'] != 0 or presLiq['PFE2O3L'] != 0:
+        if presLiq['FeO'] != 0 or presLiq['Fe2O3'] != 0:
             adjFact['Fe'] = (fAbMolecule['Fe'] * gamma['Fe'] + actOx['Fe2O3']) / (presLiq['FeO'] + presLiq['Fe2O3'])
         elif fAbMolecule['Fe'] == 0:
             adjFact['Fe'] = 0
