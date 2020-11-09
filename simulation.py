@@ -160,8 +160,16 @@ class simulation():
     def activity_gas_calculation(self,addF2O3=True): 
         # print(addF2O3)
         self.iit = 0 # Counter needed to solve for activities
+        self.explicit = False
+        if self.iRep in [0,1]:
+                self.explicit = True
+
+        if self.explicit:
+            print('In activity gas calc')
+
         while self.iit < 1e8: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
             print('IIT',self.iit, self.iRep, self.iStep)
+            
             ''' 
             Activities of oxides in the melt:
             - formula: activity = molecular abundance * activity coefficient
@@ -187,9 +195,10 @@ class simulation():
 
             ''' Computes activities of the complex melts '''        
             self.actMeltComp = self.td.activities_meltComplex(self.actOx,self.iStep)
-
+            # if self.explicit: print('After actMeltComp')
             ''' Recomputing gamma from the activities computed above '''
             self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,addF2O3,self.fAbMolecule,self.iStep)
+            # if self.explicit: print('After gamma')
             
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
@@ -198,22 +207,19 @@ class simulation():
                     self.gamRat[element] = self.gamma_new[element]/self.gamma[element]
                 else:
                     self.gamRat[element] = 1
-
+            # if self.explicit: print('After gamrat')
+            
             ''' 
             If self.gamRat[elements] ~1, the code has arrived at a solution for all the 
             activities, and moves on to the gas chemistry. 
             If this is not the case, then the activity coefficients are adjusted and 
             the activities are recomputed until a solution is foudn. 
             ''' 
-            # print(list(self.gamRat.values()))
-            if np.sum(np.isnan(list(self.gamRat.values())))>0:
-                print('gamrat',self.gamRat)
-                print('gamnew',self.gamma_new)
-                print('gamma',self.gamma)
-                raise RuntimeError('WTF BRO THERE IS NAN BREAD')
+            # if self.explicit: print(list(self.gamRat.values()))
 
             if all(rat < 1e-5 for rat in np.abs(np.log10(list(self.gamRat.values())))):
                 #print(f'Solution for the gas activities found after {self.iit+1} iteration(s).')
+                if self.explicit: print('Break')
                 break
 
             if self.iit > 500:
@@ -255,11 +261,23 @@ class simulation():
             ADJUST THE ABUNDANCES OF THE MAJOR GASES OF EACH ELEMENT
             these abundances are used to calculate all other gas chemistry
             '''
+            if self.explicit: 
+                print('Adj fact',self.iit)
+                print(self.adjFact)
+                # print([1-self.dif_range < fact < 1+self.dif_range or fact == 0 \
+                   # for fact in list(self.adjFact.values())])
+                # print(self.iit)
+
             for gas in self.gas_names:
                 self.presGas[gas] = self.presGas[gas]* self.adjFact[gas]
+            print('PO2G',self.presGas['O2'])
 
             ''' Compute the partial pressures of the vapor species ''' 
             self.td.ion_chemistry(self.presGas,self.presLiq)
+            print('POG',self.presGas['O'])
+            print('EOG',self.td.EOG)
+            print('PO2G',self.presGas['O2'])
+
 
             ''' Calculate the number densities of each species and for each element'''
             self.td.number_density(self.presGas)
@@ -269,7 +287,8 @@ class simulation():
             
             ''' While loop break '''
             self.iit += 1 # updating counter
-            if self.iit >= 1e8: 
+            # if self.iit >= 1e5: 
+            if self.iit >= 2 and self.explicit:  
                 raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
 
         #print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
@@ -279,6 +298,9 @@ class simulation():
     # end activity_gas_calculation
 
     def vaporisation(self):
+
+        if self.explicit:
+            print("Entered vapo")
 
         ''' Calculating total gas pressure '''
         self.tot_gasPres = {}
@@ -407,9 +429,10 @@ class simulation():
         
         file = open('magpy_trackers.csv', "w")
 
-        while self.vap < 1 and self.iRep <= 2647:
+        while self.vap < 1 and self.iRep <= 1:
             # print(self.iRep)
             self.activity_gas_calculation(addF2O3=False)
+            if self.explicit: print('after first activity calc')
             self.activity_gas_calculation()
             # print(self.gamma['Si']) 
             self.vaporisation()
@@ -422,6 +445,8 @@ class simulation():
             self.iPrn += 1 # Used to track how often to print
             self.iStep += 1 # Used to track nuber of vaporization steps
             self.iRep += 1 
+
+            print(self.vap)
 
         # CHECK IF self.vap => 1
         # IF NOT go back to calculating activities

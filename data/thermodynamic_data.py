@@ -997,7 +997,7 @@ class thermodynamic_data():
 
         ''' Ca '''
         presLiq['CaO'] = self.ECAOL * presGas['Ca'] * presGas['O']
-        presGas['CaO'] = self.ECAOG * presGas['Ca'] * presGas['O2']
+        presGas['CaO'] = self.ECAOG * presGas['Ca'] * presGas['O2']**0.5
 
         ''' Al '''
         presLiq['Al2O3'] = self.EAL2O3L * presGas['Al']**2 * presGas['O']**3
@@ -1167,6 +1167,7 @@ class thermodynamic_data():
         '''
         Adjustment factor for oxygen is governed by the most abundant volatile
         metal oxide present in the melt.
+        TODO: THIS ASSUMES THAT THE ABUNDANCES ARE ALWAYS ORDEREDAS IN THIS IF STATEMENT
         '''
         if presLiq['SiO2'] != 0 and fAbMolecule['Si'] != 0:
             adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Si'] * gamma['Si'] /\

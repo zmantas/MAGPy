@@ -1302,6 +1302,9 @@ C  these abundances are used to calculate all other gas chemistry
 	PTIG = PTIG * ATIG
 	PNAG = PNAG * ANAG
 	PKG = PKG * AKG
+
+	PRINT 125, PO2G
+125	FORMAT('PO2G',1PE13.6)
 	
 C  Compute the partial pressures of the vapor species	
 C  and activities of the oxides.
@@ -1316,6 +1319,9 @@ C    HENCE PENEG = DSQRT((PNACAT + PKCAT)*PENEG)
 	PSIG = ESIG * PSIL
 	POG = EOG * DSQRT(PO2G)
 	PSIO2G = ESIO2G * PSIL * PO2G
+
+	PRINT 126, POG, EOG, PO2G
+126	FORMAT('POG',1PE13.6,/,'EOG',1PE13.6,/,'PO2G',1PE13.6)
 
 	PMGG = EMGG * PMGOG * PO2G**(-0.5)
 	PMGOL = EMGOL * PMGG * POG
@@ -1538,6 +1544,16 @@ C	the factors are recomputed and gas chemistry is repeated (50)
 C  	until a solution is converged upon. Otherwise the code continues
 C 	to the next computations (80).
 
+	IF ((IREP .EQ. 1) .OR. (IREP .EQ. 0)) THEN 
+	PRINT 124, IIT, ASIOG, AMGOG, AO2G
+	ENDIF
+
+	IF (IIT .EQ. 2) THEN
+	STOP
+	ENDIF
+
+124	FORMAT('Adj factor',I6,/,1PE16.8,1PE16.8,1PE16.8)
+
 	IF (((ASIOG .LT. 1.00000230259D0 .AND. ASIOG .GT. 
      *  9.99997697418D-1) .OR. ASIOG .EQ. 0.0D0).AND. ((AO2G .LT. 
      *  1.00000230259D0 .AND. AO2G .GT. 9.99997697418D-1) .OR. AO2G 
@@ -1554,11 +1570,13 @@ C 	to the next computations (80).
      *  .GT. 9.99997697418D-1) .OR. AKG .EQ. 0.0D0)) THEN 
         GOTO 80
 	ELSE
+	IIT = IIT + 1
 	GOTO 50
 	ENDIF
 
 
 80	CONTINUE
+	IIT = 0
 
 C  If this is the first run through activity/gas calculations for this step
 C  then go back to activity calculations and add in the iron oxides
@@ -2100,7 +2118,7 @@ C	NOW WRITE THE FRACTION OF MAGMA VAPORIZED
 
 
 C  Limit the number of steps to calculate (originally 5000). 
-	IF (IREP .EQ. 2647) GO TO 3000 
+	IF (IREP .EQ. 1) GO TO 3000 
 	IREP = IREP + 1
 
 c       ...........................................................
