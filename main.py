@@ -27,15 +27,15 @@ References describing the MAGMA code:
 import sys
 import numpy as np
 from model_comp import model_comp
-from simulation import simulation
+from simulation_debug2 import simulation
 
 def main():
 
     ''' Temperature for which the calculations will be done '''
-    T = 1613 # Temperature of magma in Kelvin
+    T = 2200 # Temperature of magma in Kelvin
 
     ''' File names '''
-    input_fname = 'input/initial-composition.dat'
+    input_fname = 'input/BSE-initial.dat'
     output_fname = 'output/MAGMA.OUT'
 
     ''' Loading initial composition '''

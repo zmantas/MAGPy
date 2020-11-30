@@ -34,20 +34,19 @@ C	AVOG is Avogadro's number
 	OPEN(1,FILE = 'MAGMA.OUT')
 	OPEN(2,FILE = '(V:1600)MAGMA.DAT',FORM = 'UNFORMATTED')
 	OPEN(3,FILE = '(V:1600)MELT.DAT',FORM = 'UNFORMATTED')
-	OPEN(4,FILE = 'initial-composition.dat')!initial composition of the magma
+C 	OPEN(4,FILE = 'initial-composition.dat')!initial composition of the magma
 c	OPEN(5,FILE = 'parameters.dat')!in this file we put the initial parameters 
 c       needed, in this initial case, only the temperature and the % of gas that is
 c       vaporized and lost in the system. 
 c	OPEN(66,FILE = 'comp-pp-3719p85-Mars.out')
 c	OPEN(66,FILE = 'comp-pp-Corot7b-komatiite.out')
 c	OPEN(66,FILE = 'comp-pp-608-3700-SuperEarth.out')
-	OPEN(14, FILE = 'magma_trackers.csv')
 
 	open(66,FILE = 'Komatiite-1613K.dat')
-
-	OPEN(4,FILE = 'initial-composition.dat')!initial composition of the magma
-
-	IREP = 0
+	OPEN(14, FILE = 'magma_trackers.csv')
+C 	OPEN(4,FILE = 'initial-composition.dat')!initial composition of the magma
+	OPEN(4,FILE = 'BSE-initial.dat')!initial composition of the magma
+	IREP = 2
 C ISTEP counts the number of vaporization steps
 	ISTEP = 0
 C IPRN is used to determine which steps are printed to the output file
@@ -91,7 +90,7 @@ c  it is also written in the output file
 c       we also read the percentage of gas that will be lost in the system. 
 
 c	READ(5,20)T,PerVap
-        T=1613.000
+        T=2200
         PerVap=0.0
 ccambiarle el formato!!!!
 	CLOSE(5)
@@ -336,7 +335,7 @@ C  and the activity of FeO (and all other oxides) is adjusted.
 
 	COMP = 0.0D0
 	
-C 	PRINT 120, ISTEP
+	
 	
 C  GAS CHEMISTRY THERMODYNAMIC DATA
 
@@ -827,9 +826,6 @@ C 100	FORMAT('gamma ', 1PE13.6)
 
 1503	COMP = COMP + 1
 
-C 	PRINT 120, ISTEP
-C 120	FORMAT(I8)
-
 1500	CONTINUE
 C 	FSI : Relative abundance of the metals by molecule (fAbMolecule in py)
 C   GAMSI : Activity coefficient
@@ -847,12 +843,8 @@ C  Then all activities are recomputed.
 	ACFE2O3 = 0.0D0
 	ELSE
 	ACFE2O3 = PFE2O3L * GAMFE3
-C 	PRINT 121, ACFE2O3
-C 	PRINT 122, PFE2O3L, GAMFE3
 	ENDIF
 
-121	FORMAT('Fe2O3',1PE13.6)
-122	FORMAT(1PE13.6,1PE13.6)
 C 	PRINT 333, ACFE2O3
 C 333	FORMAT('action Fe2O3 ', 1PE13.6)
 	
@@ -1107,16 +1099,6 @@ C	found.
 C  If the activity calculations have not converged within 30 iterations
 C  adjust the activity coefficients using the equations after 1501.
 C  Otherwise use the equations directly below (geometric means).
-C 	PRINT 116, MOD(ITT,100)
-C 	PRINT 116, IIT
-C 	TEMP = MOD(IIT,100)
-C 	PRINT 118, TEMP 
-C 	IF (MOD(IIT,1) .EQ. 0) PRINT 116, IIT, IREP, ISTEP
-	PRINT 116, IIT, IREP, ISTEP
-118	FORMAT(1PE16.2)
-116	FORMAT('IIT',I8,I8,I8)
-
-
 	IF (IIT .GT. 30) GO TO 1501
 
 C  Adjust the activity coefficients by taking the geometric means of the 
@@ -1302,9 +1284,6 @@ C  these abundances are used to calculate all other gas chemistry
 	PTIG = PTIG * ATIG
 	PNAG = PNAG * ANAG
 	PKG = PKG * AKG
-
-	PRINT 125, PO2G
-125	FORMAT('PO2G',1PE13.6)
 	
 C  Compute the partial pressures of the vapor species	
 C  and activities of the oxides.
@@ -1319,9 +1298,6 @@ C    HENCE PENEG = DSQRT((PNACAT + PKCAT)*PENEG)
 	PSIG = ESIG * PSIL
 	POG = EOG * DSQRT(PO2G)
 	PSIO2G = ESIO2G * PSIL * PO2G
-
-	PRINT 126, POG, EOG, PO2G
-126	FORMAT('POG',1PE13.6,/,'EOG',1PE13.6,/,'PO2G',1PE13.6)
 
 	PMGG = EMGG * PMGOG * PO2G**(-0.5)
 	PMGOL = EMGOL * PMGG * POG
@@ -1544,16 +1520,6 @@ C	the factors are recomputed and gas chemistry is repeated (50)
 C  	until a solution is converged upon. Otherwise the code continues
 C 	to the next computations (80).
 
-	IF ((IREP .EQ. 1) .OR. (IREP .EQ. 0)) THEN 
-	PRINT 124, IIT, ASIOG, AMGOG, AO2G
-	ENDIF
-
-	IF (IIT .EQ. 2) THEN
-	STOP
-	ENDIF
-
-124	FORMAT('Adj factor',I6,/,1PE16.8,1PE16.8,1PE16.8)
-
 	IF (((ASIOG .LT. 1.00000230259D0 .AND. ASIOG .GT. 
      *  9.99997697418D-1) .OR. ASIOG .EQ. 0.0D0).AND. ((AO2G .LT. 
      *  1.00000230259D0 .AND. AO2G .GT. 9.99997697418D-1) .OR. AO2G 
@@ -1570,13 +1536,11 @@ C 	to the next computations (80).
      *  .GT. 9.99997697418D-1) .OR. AKG .EQ. 0.0D0)) THEN 
         GOTO 80
 	ELSE
-	IIT = IIT + 1
 	GOTO 50
 	ENDIF
 
 
 80	CONTINUE
-	IIT = 0
 
 C  If this is the first run through activity/gas calculations for this step
 C  then go back to activity calculations and add in the iron oxides
@@ -1925,8 +1889,20 @@ C  mass has been removed from the system (=vaporization step).
 	IPRN = IPRN + 1
 	ISTEP = ISTEP + 1
 
-	WRITE(14, 114) ISTEP, VAP
-114	FORMAT(I4, 1PE13.6)
+C 	WRITE(14, 114) ISTEP, VAP, ATMSI, ATMMG, ATMFE, ATMCA, ATMAL,  
+C      * ATMTI, ATMNA, ATMK
+
+C 114	FORMAT(I4, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5,
+C      * 1PE13.5, 1PE13.5, 1PE13.5)
+
+	WRITE(14, 115) ISTEP, VAP, XMG, XMGO, XSIO, XSIO2, XFE,  
+     * XFEO, XNA, XO, XO2 
+
+115	FORMAT(I4, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5,
+     * 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5, 1PE13.5)
+
+
+C 114	FORMAT(I4, 1PE13.5,)
 
 C 	PRINT 105, ISTEP
 C 105	FORMAT('istep ', I4)
@@ -2117,8 +2093,8 @@ C	NOW WRITE THE FRACTION OF MAGMA VAPORIZED
 
 
 
-C  Limit the number of steps to calculate (originally 5000). 
-	IF (IREP .EQ. 1) GO TO 3000 
+C  Limit the number of steps to calculate. 
+	IF (IREP .EQ. 5000) GO TO 3000
 	IREP = IREP + 1
 
 c       ...........................................................

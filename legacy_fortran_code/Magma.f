@@ -2041,8 +2041,8 @@ C 	Na2O			1405
 C 	K2O			1175		Glushko 2nd ed vol. 4
 C	Al2O3			2327		corundum
 C	SiO2			1996		cristobalite
-C	TiO2			2130±20		rutile
-C	CaO			3172±20		Gurvich 3rd ed vol. 3
+C	TiO2			2130Â±20		rutile
+C	CaO			3172Â±20		Gurvich 3rd ed vol. 3
 C	MgO			3100		Gurvich 3rd ed vol.3
 C	FeO			1650 		JANAF 4th ed
 C	Fe2O3			1895		Robie & Hemingway

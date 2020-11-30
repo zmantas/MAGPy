@@ -1,5 +1,6 @@
 # Jupyter notebooks
 /jupyter_notebooks
+/legacy_fortran_code
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
