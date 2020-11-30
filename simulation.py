@@ -193,7 +193,10 @@ class simulation():
             self.gamRat = {}
             for element in self.gamma:
                 if self.gamma_new[element] != 0: # TODO: Check if for Fe3 you need to check that Fe is zero as well
-                    self.gamRat[element] = self.gamma_new[element]/self.gamma[element]
+                    if element == 'Fe3' and self.gamma_new['Fe'] == 0:
+                        self.gamRat[element] = 1
+                    else:
+                        self.gamRat[element] = self.gamma_new[element]/self.gamma[element]
                 else:
                     self.gamRat[element] = 1
             

@@ -728,9 +728,6 @@ class thermodynamic_data():
         '''
         self.actMeltComp['MG1'] = self.actMelt['MG1'] * actOx['MgO'] * actOx['SiO2']
 
-        print('K! -', self.actMelt['MG1'])
-        print('K! -', self.actMeltComp['MG1'])
-        
         self.actMeltComp['MG2'] = self.actMelt['MG2'] * actOx['MgO']**2 * actOx['SiO2']
         
         self.actMeltComp['MG3'] = self.actMelt['MG3'] * actOx['MgO'] * actOx['Al2O3']
@@ -770,8 +767,7 @@ class thermodynamic_data():
         self.actMeltComp['CA12'] = self.actMelt['CA12'] * actOx['CaO'] * actOx['Al2O3']**6
 
         self.actMeltComp['FE1'] = self.actMelt['FE1'] * actOx['FeO'] * actOx['TiO2']
-        # print('FE1',self.actMeltComp['FE1'], self.actMelt['FE1'], actOx['FeO'], actOx['TiO2'])
-        
+          
         self.actMeltComp['FE2'] = self.actMelt['FE2'] * actOx['FeO']**2 * actOx['SiO2']
         
         self.actMeltComp['FE3'] = self.actMelt['FE3'] * actOx['FeO'] * actOx['Al2O3']
@@ -784,11 +780,6 @@ class thermodynamic_data():
         
         self.actMeltComp['NA3'] = self.actMelt['NA3'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3']) * actOx['SiO2']
         
-        # if istep == 806:
-            # print('\nMELTCOMP NA3')
-            # print(self.actMeltComp['NA3'])
-            # print(self.actMelt['NA3'], 'sqrt(',actOx['Na2O'],')', 'sqrt(',actOx['Al2O3'],')', actOx['SiO2'],'\n')
-
         self.actMeltComp['NA4'] = self.actMelt['NA4'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3']) * actOx['SiO2']**3
         
         self.actMeltComp['NA5'] = self.actMelt['NA5'] * np.sqrt(actOx['Na2O']) * np.sqrt(actOx['Al2O3'])
@@ -859,31 +850,6 @@ class thermodynamic_data():
                                            )
         else:
             gamma['Si'] = 0
-        # if istep == 806:
-        #     print('actox[SiO2]',actOx['SiO2'])
-        #     print('new gamma:',gamma['Si'])
-        #     print('NA3', self.actMeltComp['NA3'])
-        #     print('\n',self.actMeltComp['MG1'], self.actMeltComp['MG2'], \
-        #                                    self.actMeltComp['CA4'] , self.actMeltComp['CA8'] , \
-        #                                    self.actMeltComp['CA10'], self.actMeltComp['CA11'], \
-        #                                    self.actMeltComp['FE2'] , self.actMeltComp['NA1'] , \
-        #                                    self.actMeltComp['NA3'] , self.actMeltComp['K1']  , \
-        #                                    self.actMeltComp['K3'])
-
-        print('\n!!!!! gamma Si', gamma['Si'])
-        print(' ACSIO2',actOx['SiO2'],'\n', 'ACMG1',self.actMeltComp['MG1'],\
-              '\n', 'ACMG2',self.actMeltComp['MG2'],'\n', 'ACCA4',self.actMeltComp['CA4'],\
-              '\n', 'ACCA8',self.actMeltComp['CA8'],'\n', 'ACCA10',self.actMeltComp['CA10'],\
-              '\n', 'ACCA11',self.actMeltComp['CA11'],'\n', 'ACFE2',self.actMeltComp['FE2'],\
-              '\n', 'ACSIO2', actOx['SiO2'],'\n', 'ACNA1',self.actMeltComp['NA1'],\
-              '\n', 'ACNA3',self.actMeltComp['NA3'],'\n', 'ACK1',self.actMeltComp['K1'],\
-              '\n', 'ACK3',self.actMeltComp['K3'],'\n', 'x 2.0 \n', 'ACAL1',self.actMeltComp['AL1'],\
-              '\n', 'ACCA5',self.actMeltComp['CA5'],'\n', 'ACCA6',self.actMeltComp['CA6'],\
-              '\n', 'ACCA7',self.actMeltComp['CA7'],'\n', 'ACNA2',self.actMeltComp['NA2'],\
-              '\n', 'ACK2',self.actMeltComp['K2'],'\n', 'ACK6',self.actMeltComp['K6'],\
-              '\n', 'ACNA7',self.actMeltComp['NA7'],'\n', 'ACK8',self.actMeltComp['K8'],'\nx 3.0',\
-              '\n', 'ACNA4',self.actMeltComp['NA4'],'\n', 'ACK4',self.actMeltComp['K4'],'\nx 4.0',\
-              '\n', 'ACK7',self.actMeltComp['K7'],'\n', 'x 5.0 \n','ACMG7',self.actMeltComp['MG7'])
 
         #### gamma Mg ####
         if actOx['MgO'] != 0:
@@ -906,8 +872,6 @@ class thermodynamic_data():
                                          )
         else:
             gamma['Fe'] = 0
-
-        # print(f"{actOx['FeO']:.6e}, {self.actMeltComp['FE1']:.6e}, {self.actMeltComp['FE3']:.6e}, {self.actMeltComp['FE2']:.6e}, {actOx['Fe2O3']:.6e}, {self.actMeltComp['FE4']:.6e}")
 
         #### gamma Fe3 ####
         # gamma['Fe3'] is an adjustment factor, not a true activity coefficient because
@@ -1001,13 +965,12 @@ class thermodynamic_data():
 
         # TODO: Look into placing all the relevant variables in thermo data
         ''' Si '''
-        presLiq['SiO2'] = self.ESIO2L * presGas['SiO']**0.5
+        presLiq['SiO2'] = self.ESIO2L * presGas['SiO'] * presGas['O2']**0.5
         presLiq['Si']   = self.ESIL * presGas['SiO'] * presGas['O2']**(-0.5) 
         presGas['Si']   = self.ESIG * presLiq['Si'] 
         presGas['O']    = self.EOG * presGas['O2']**0.5
         presGas['SiO2'] = self.ESIO2G * presLiq['Si'] * presGas['O2']
-        print('PSIO2G ', presGas['SiO2'], '\nESIO2G', self.ESIO2G, '\nPSIL',presLiq['Si'], '\nPO2G',presGas['O2'])
-
+      
         ''' Mg '''
         presGas['Mg'] = self.EMGG * presGas['MgO'] * presGas['O2']**(-0.5)
         presLiq['MgO'] = self.EMGOL *presGas['Mg'] * presGas['O']
@@ -1196,9 +1159,6 @@ class thermodynamic_data():
         if presLiq['SiO2'] != 0 and fAbMolecule['Si'] != 0:
             adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Si'] * gamma['Si'] /\
                             presLiq['SiO2']
-            print('\n1st:')
-            print(f'RAT {self.oxideO_ratio} \nFSI {fAbMolecule["Si"]}\
-                    \nGAMSI {gamma["Si"]} \nPSIO2L {presLiq["SiO2"]}')
         elif fAbMolecule['Mg'] != 0:
             adjFact['O2'] = self.oxideO_ratio * fAbMolecule['Mg'] * gamma['Mg'] /\
                             presLiq['MgO']
