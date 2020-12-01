@@ -43,10 +43,6 @@ class thermodynamic_data():
         '''
         self.E = 3.47 - 13282 / self.T
         self.EOG = 10.0**self.E
-        print('E,T',self.E,self.T)
-        print(13282/self.T)
-        print(13282./self.T)
-        print(Decimal(13282)/Decimal(self.T))
 
         '''    
         Si(liq) = Si(g)

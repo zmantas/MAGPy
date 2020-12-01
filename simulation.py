@@ -1,4 +1,7 @@
 import numpy as np
+from tqdm import tqdm
+
+
 from data.thermodynamic_data import thermodynamic_data
 
 class simulation():
@@ -158,7 +161,6 @@ class simulation():
     # end __init__()
 
     def activity_gas_calculation(self,addF2O3=True): 
-        # print(addF2O3)
         self.iit = 0 # Counter needed to solve for activities
 
         while self.iit < 1e8: # Setting to 1e5 purely so that no unending loop is created, check best size of value 
@@ -259,10 +261,10 @@ class simulation():
 
             ''' Recompute the adjustment factors for the key pressures ''' 
             self.td.recompute_adjFact(self.presGas,self.presLiq,self.gamma,self.adjFact,self.fAbMolecule,self.actOx)
-            
+
             ''' While loop break '''
             self.iit += 1 # updating counter
-            if self.iit >= 1e5: 
+            if self.iit >= 1e8: 
                 raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
 
         #print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
@@ -295,11 +297,6 @@ class simulation():
         self.totMolFracEl = {}
         for element in self.td.totRho:
             self.totMolFracEl[element] = self.td.totRho[element]/self.sum_totRho
-
-        # if self.addF2O3 == 1:
-            #TODO: print the calculated aquilibrium abundances before removing mass for the
-            #      first vaporisation step
-            # pass
 
         '''
         Compute the step size.  The most volatile element in the melt will be 
@@ -394,23 +391,29 @@ class simulation():
         
         file = open('magpy_trackers.csv', "w")
 
-        while self.vap < 1 and self.iRep <= 1e5:
-            self.activity_gas_calculation(addF2O3=False)
-            self.activity_gas_calculation()
-            self.vaporisation()
+        with tqdm(total=1) as pbar:
+
+            pbar.set_description('Vaporization percentage')
+
+            while self.vap < 1 and self.iRep <= 1e5:
+                self.activity_gas_calculation(addF2O3=False)
+                self.activity_gas_calculation()
+                self.vaporisation()
 
 
-            file.write(f'{self.iRep} {self.vap:.6e} {self.gasMoleFrac["Mg"]} {self.gasMoleFrac["MgO"]}\
-                         {self.gasMoleFrac["SiO"]} {self.gasMoleFrac["SiO2"]} {self.gasMoleFrac["Fe"]}\
-                         {self.gasMoleFrac["FeO"]} {self.gasMoleFrac["Na"]} {self.gasMoleFrac["O"]}\
-                         {self.gasMoleFrac["O2"]}\n')
+                file.write(f'{self.iRep} {self.vap:.6e} {self.gasMoleFrac["Mg"]} {self.gasMoleFrac["MgO"]}\
+                             {self.gasMoleFrac["SiO"]} {self.gasMoleFrac["SiO2"]} {self.gasMoleFrac["Fe"]}\
+                             {self.gasMoleFrac["FeO"]} {self.gasMoleFrac["Na"]} {self.gasMoleFrac["O"]}\
+                             {self.gasMoleFrac["O2"]}\n')
 
-            ''' Update counters '''
-            self.iPrn += 1 # Used to track how often to print
-            self.iStep += 1 # Used to track nuber of vaporization steps
-            self.iRep += 1 
+                ''' Update counters '''
+                self.iPrn += 1 # Used to track how often to print
+                self.iStep += 1 # Used to track nuber of vaporization steps
+                self.iRep += 1 
 
-            print(self.vap)
+                pbar.update(self.vap - pbar.n)
+
+        pbar.close()
 
         # CHECK IF self.vap => 1
         # IF NOT go back to calculating activities
