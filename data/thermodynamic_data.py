@@ -43,7 +43,8 @@ class thermodynamic_data():
         '''
         self.E = 3.47 - 13282 / self.T
         self.EOG = 10.0**self.E
-
+        # print(self.EOG)
+        
         '''    
         Si(liq) = Si(g)
         AK3 = 10.0**B = P(SIG)/P(SIL)
@@ -965,6 +966,7 @@ class thermodynamic_data():
         presLiq['Si']   = self.ESIL * presGas['SiO'] * presGas['O2']**(-0.5) 
         presGas['Si']   = self.ESIG * presLiq['Si'] 
         presGas['O']    = self.EOG * presGas['O2']**0.5
+        # print(presGas['O'])
         presGas['SiO2'] = self.ESIO2G * presLiq['Si'] * presGas['O2']
       
         ''' Mg '''
@@ -1109,7 +1111,7 @@ class thermodynamic_data():
 
         # Ca 
         if all(val != 0 for val in [presLiq['CaO'],fAbMolecule['Ca'],gamma['Ca']]):
-            adjFact['Ca'] = 1 / (presLiq['Al2O3'] / (gamma['Al'] * fAbMolecule['Al']))**0.5
+            adjFact['Ca'] = 1 / (presLiq['CaO'] / (gamma['Ca'] * fAbMolecule['Ca']))**0.5
         elif fAbMolecule['Ca'] == 0 or gamma['Ca'] == 0:
             adjFact['Ca'] = 0
         else:

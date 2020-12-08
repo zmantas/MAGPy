@@ -25,7 +25,7 @@ References describing the MAGMA code:
 '''
 
 import sys
-import numpy as np
+
 from model_comp import model_comp
 from simulation import simulation
 

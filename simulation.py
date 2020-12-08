@@ -291,6 +291,7 @@ class simulation():
         self.gasMoleFrac = {}
         for gas in self.presGas:
             self.gasMoleFrac[gas] = self.presGas[gas]/self.totPres
+        # print(self.gasMoleFrac['O'])
 
         ''' Calculate the total mole fraction of an element in the gas '''
         self.sum_totRho = sum(self.td.totRho.values())
@@ -310,13 +311,18 @@ class simulation():
         '''
 
         # Calculating volatilities using mole fraction and atomic abundance
-        volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] if self.fAbAtom[element] > 1e-20 else 0 for element in self.fAbAtom}
+        volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] \
+                        if self.fAbAtom[element] > 1e-20 else 0 for element in self.fAbAtom}
+
+        # print(volatilities)
+        # print(x)
         
         # Calculating vaporisation fraction using most volatile element
         self.vapoFrac = 0.05/max(volatilities.values())
 
         # Calculating volatilities using mole fraction and elemental abundance
-        volatilities1 = {element: self.totMolFracEl[element]/self.abEl[element] if self.fAbAtom[element] > 1e-20 else 0 for element in self.abEl}
+        volatilities1 = {element: self.totMolFracEl[element]/self.abEl[element] \
+                         if self.fAbAtom[element] > 1e-20 else 0 for element in self.abEl}
         
         # Calculating vaporisation fraction using most volatile element
         self.vapoFrac1 = 0.05/max(volatilities1.values())        
@@ -399,12 +405,18 @@ class simulation():
                 self.activity_gas_calculation(addF2O3=False)
                 self.activity_gas_calculation()
                 self.vaporisation()
+                # print(self.gasMoleFrac)
 
-
-                file.write(f'{self.iRep} {self.vap:.6e} {self.gasMoleFrac["Mg"]} {self.gasMoleFrac["MgO"]}\
-                             {self.gasMoleFrac["SiO"]} {self.gasMoleFrac["SiO2"]} {self.gasMoleFrac["Fe"]}\
-                             {self.gasMoleFrac["FeO"]} {self.gasMoleFrac["Na"]} {self.gasMoleFrac["O"]}\
-                             {self.gasMoleFrac["O2"]}\n')
+                # file.write(f'{self.iRep} {self.vap:.6e} {self.gasMoleFrac["Mg"]} {self.gasMoleFrac["MgO"]}\
+                #              {self.gasMoleFrac["Si"]} {self.gasMoleFrac["SiO"]} {self.gasMoleFrac["SiO2"]}\
+                #              {self.gasMoleFrac["Fe"]} {self.gasMoleFrac["FeO"]} {self.gasMoleFrac["Al"]}\
+                #              {self.gasMoleFrac["AlO"]} {self.gasMoleFrac["AlO2"]} {self.gasMoleFrac["Al2O"]} {self.gasMoleFrac["Al2O2"]}\
+                #              {self.gasMoleFrac["Ca"]} {self.gasMoleFrac["CaO"]} {self.gasMoleFrac["Na"]}\
+                #              {self.gasMoleFrac["Na2"]} {self.gasMoleFrac["NaO"]} {self.gasMoleFrac["Na2O"]}\
+                #              {self.gasMoleFrac["NaCat"]} {self.gasMoleFrac["K"]} {self.gasMoleFrac["K2"]}\
+                #              {self.gasMoleFrac["KO"]} {self.gasMoleFrac["K2O"]} {self.gasMoleFrac["KCat"]}\
+                #              {self.gasMoleFrac["Ti"]} {self.gasMoleFrac["TiO"]} {self.gasMoleFrac["TiO2"]}\
+                #              {self.gasMoleFrac["EnE"]} {self.gasMoleFrac["O"]} {self.gasMoleFrac["O2"]}\n')
 
                 ''' Update counters '''
                 self.iPrn += 1 # Used to track how often to print
