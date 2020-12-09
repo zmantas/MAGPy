@@ -1,53 +1,38 @@
-'''
-Written by Van Buchem in 2020
-
-Adapted from 'MAGMA.FOR' for which the original code was written by Al Cameron in 1987 ###
-
-History of Fortran version:
-- modified by Bruce Fegley July 2002 (bfegley@wustl.edu)
-- modified by Laura Schaefer August 2002, June 2003(save file) (laura_s@levee.wustl.edu)
-- thermodynamic data comments added by Bruce Fegley June 2004
-- modified by Laura Schaefer March 2005 - added Fe2O3 and Fe3O4,
-  added commenting, and set CON(El) to zero when A(El) is zero
-- modified by Yamila Miguel June 2011 (miguel@mpia-hd.mpg.de)
-
-
-References describing the MAGMA code:
-- B. Fegley, Jr. & A.G.W. Cameron (1987) A Vaporization Model for 
-  Iron/Silicate Fractionation in the Mercury Protoplanet. 
-
-- Earth Planet. Sci. Lett. 82, 207-222.
-
-- L. Schaefer & B. Fegley, Jr. (2004)A Thermodynamic Model of High
-
-- Temperature Lava Vaporization on Io. Icarus 169, 216-241.
-
-'''
-
+# Standard libraries
 import sys
 
-from model_comp import model_comp
-from simulation import simulation
+# Local modules
+from melt_vapor_system import system
+from melt_activity import melt_activity
+
 
 def main():
 
-    ''' Temperature for which the calculations will be done '''
-    T = 2200 # Temperature of magma in Kelvin
+	''' 
+	Setting initial values 
+	'''
 
-    ''' File names '''
-    input_fname = 'input/BSE-initial.dat'
-    output_fname = 'output/MAGMA.OUT'
+	# Temperature for which the calculations will be done '''
+	T = 2200 # Temperature of magma in Kelvin
 
-    ''' Loading initial composition '''
-    model = model_comp(input_fname)
-    model.print()
+	# File names
+	# input_fname = 'input/BSE-initial.dat'
+	input_fname = 'input/ic_Komatiite.dat'
+	output_fname = 'output/MAGMA.OUT'
 
-    ''' Start simulation '''
-    sim = simulation(model,T)
-    sim.print_init(output_fname) # Write inital values to output file
-    sim.start()
-    sim.print_results(output_fname) 
+	'''
+	Initialising classes
+	'''
+	sim = system(input_fname)
+	melt = melt_activity(T,sim)
+
+
+	'''
+	Running calculations
+	'''
+	melt.melt_activity_calculation(sim)
+
+
 
 if __name__ == "__main__":
-    sys.exit(main())
-
+	sys.exit(main())
