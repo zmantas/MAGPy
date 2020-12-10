@@ -31,11 +31,16 @@ from simulation import simulation
 
 def main():
 
-    ''' Temperature for which the calculations will be done '''
+    ''' 
+    Temperature and total vaporisation for which the calculations 
+    will be carried out. 
+    '''
     T = 2200 # Temperature of magma in Kelvin
+    V = 1
 
     ''' File names '''
-    input_fname = 'input/BSE-initial.dat'
+    # input_fname = 'input/BSE-initial.dat'
+    input_fname = 'input/ic_Komatiite.dat'
     output_fname = 'output/MAGMA.OUT'
 
     ''' Loading initial composition '''
@@ -43,7 +48,7 @@ def main():
     model.print()
 
     ''' Start simulation '''
-    sim = simulation(model,T)
+    sim = simulation(model,T,V)
     sim.print_init(output_fname) # Write inital values to output file
     sim.start()
     sim.print_results(output_fname) 

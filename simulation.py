@@ -8,7 +8,7 @@ class simulation():
     ''' 
     Initialises the vaporisation simulation.
     '''
-    def __init__(self,model_composition,T):
+    def __init__(self,model_composition,T,V):
 
         ''' File names ''' 
         mwOxides_fname = 'data/weights_oxides.csv'
@@ -16,7 +16,12 @@ class simulation():
 
         ''' Setting temperature '''
         self.T = T   # temperature of magma (Kelvin)
-        print(f'\nCalculating for a magma temperature of {self.T} K')
+    
+        ''' Setting max vaporisation '''
+        self.V = V 
+  
+        print(f'\nCalculating for a magma temperature of {self.T} K',
+              f'and for a maximum vaporisation fraction of {self.V}.')
         
         ''' Importing metal and oxide name lists from '''
         self._metalNames = model_composition._metalNames
@@ -169,9 +174,6 @@ class simulation():
             Activities of oxides in the melt:
             - formula: activity = molecular abundance * activity coefficient
             '''
-            # if self.iStep == 806:
-            #     print('Before actox calc')
-            #     print(self.fAbMolecule['Na'], self.gamma['Na'])
 
             self.actOx = {}
             for i,metal in enumerate(self._metalNames):
@@ -189,7 +191,6 @@ class simulation():
 
             ''' Recomputing gamma from the activities computed above '''
             self.gamma_new = self.td.recompute_gamma(self.actOx,self.gamma,addF2O3,self.fAbMolecule,self.iStep)
-
             
             ''' Compute ratio of newly computed activity and previous activity '''
             self.gamRat = {}
@@ -267,8 +268,6 @@ class simulation():
             if self.iit >= 1e8: 
                 raise RuntimeError('Max recursion limit reached while calculating adjustment factors.')
 
-        #print(f'Solution for the adjustment factors found after {self.iit} iteration(s).')
-
         # end while loop
 
     # end activity_gas_calculation
@@ -291,7 +290,6 @@ class simulation():
         self.gasMoleFrac = {}
         for gas in self.presGas:
             self.gasMoleFrac[gas] = self.presGas[gas]/self.totPres
-        # print(self.gasMoleFrac['O'])
 
         ''' Calculate the total mole fraction of an element in the gas '''
         self.sum_totRho = sum(self.td.totRho.values())
@@ -314,9 +312,6 @@ class simulation():
         volatilities = {element: self.totMolFracEl[element]/self.fAbAtom[element] \
                         if self.fAbAtom[element] > 1e-20 else 0 for element in self.fAbAtom}
 
-        # print(volatilities)
-        # print(x)
-        
         # Calculating vaporisation fraction using most volatile element
         self.vapoFrac = 0.05/max(volatilities.values())
 
@@ -401,11 +396,10 @@ class simulation():
 
             pbar.set_description('Vaporization percentage')
 
-            while self.vap < 1 and self.iRep <= 1e5:
+            while self.vap < self.V and self.iRep <= 1e5:
                 self.activity_gas_calculation(addF2O3=False)
                 self.activity_gas_calculation()
                 self.vaporisation()
-                # print(self.gasMoleFrac)
 
                 # file.write(f'{self.iRep} {self.vap:.6e} {self.gasMoleFrac["Mg"]} {self.gasMoleFrac["MgO"]}\
                 #              {self.gasMoleFrac["Si"]} {self.gasMoleFrac["SiO"]} {self.gasMoleFrac["SiO2"]}\

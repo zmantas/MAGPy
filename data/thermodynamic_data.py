@@ -43,7 +43,6 @@ class thermodynamic_data():
         '''
         self.E = 3.47 - 13282 / self.T
         self.EOG = 10.0**self.E
-        # print(self.EOG)
         
         '''    
         Si(liq) = Si(g)
@@ -411,6 +410,7 @@ class thermodynamic_data():
         self.nameMeltComp['MG1'] = 'MgSiO3'
         self.actMelt['MG1'] = 10**( 0.42 + 2329/self.T)
 
+
         '''
         2MgO(liq) + SiO2(liq) = Mg2SiO4(liq)
         log10K(Mg2SiO4) = - 34.08 + 141582/T
@@ -596,7 +596,6 @@ class thermodynamic_data():
         '''
         self.nameMeltComp['FE1'] = 'FeTiO3'
         self.actMelt['FE1'] = 10**(- 0.51 + 3569/self.T)
-        # print('YOO',self.actMelt['FE1'])
 
         '''
         2FeO(liq) + SiO2(liq) = Fe2SiO4(liq)
@@ -820,10 +819,6 @@ class thermodynamic_data():
             - gamma: original value being passed on 
             - comp: necessary for calculating gamma['Fe2O3']
             - fAbMolecule: necessary for calculating gamma['Fe2O3']
-
-        TODO: This part of the code gives slightly different values than the F77 code.
-              This is most likely due to a difference in precesion. Should be checked out. 
-
         '''
         gamma = gamma.copy() # Necessary in order to avoid working in original gamma value dict
 
@@ -966,7 +961,6 @@ class thermodynamic_data():
         presLiq['Si']   = self.ESIL * presGas['SiO'] * presGas['O2']**(-0.5) 
         presGas['Si']   = self.ESIG * presLiq['Si'] 
         presGas['O']    = self.EOG * presGas['O2']**0.5
-        # print(presGas['O'])
         presGas['SiO2'] = self.ESIO2G * presLiq['Si'] * presGas['O2']
       
         ''' Mg '''
