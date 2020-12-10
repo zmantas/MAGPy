@@ -4,35 +4,40 @@ import sys
 # Local modules
 from melt_vapor_system import system
 from melt_activity import melt_activity
+from vapor_pressure import vapor_pressure
 
 
 def main():
 
-	''' 
-	Setting initial values 
-	'''
+    ''' 
+    Setting initial values 
+    '''
 
-	# Temperature for which the calculations will be done '''
-	T = 2200 # Temperature of magma in Kelvin
+    # Temperature for which the calculations will be done '''
+    T = 2200 # Temperature of magma in Kelvin
 
-	# File names
-	# input_fname = 'input/BSE-initial.dat'
-	input_fname = 'input/ic_Komatiite.dat'
-	output_fname = 'output/MAGMA.OUT'
+    # File names
+    # input_fname = 'input/BSE-initial.dat'
+    input_fname = 'input/ic_Komatiite.dat'
+    output_fname = 'output/MAGMA.OUT'
 
-	'''
-	Initialising classes
-	'''
-	sim = system(input_fname)
-	melt = melt_activity(T,sim)
+    '''
+    Initialising classes
+    '''
+    sim = system(input_fname)
+    melt = melt_activity(T,sim)
+    vapor = vapor_pressure(T,sim)
 
-
-	'''
-	Running calculations
-	'''
-	melt.melt_activity_calculation(sim)
-
+    '''
+    Running calculations
+    '''
+    melt.melt_activity_calculation(sim)
+    vapor.vapor_pressure_calculation(sim)
+    melt.melt_activity_calculation(sim,addF2O3=True)
+    vapor.vapor_pressure_calculation(sim)
+    
+    print(sim.act_ox)
 
 
 if __name__ == "__main__":
-	sys.exit(main())
+    sys.exit(main())
