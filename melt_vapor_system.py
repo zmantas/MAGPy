@@ -6,11 +6,11 @@ class system():
     Class containing all relevant information for the melt_vapor system.
     '''
 
-    def __init__(self,input_fname):
+    def __init__(self,input_fname,T):
 
         '''Constants'''
         self._avog = 6.023e23 # Avogadro's number
-
+        self.T = T
         ''' 
         Defining variables
         '''
@@ -26,7 +26,8 @@ class system():
 
         self.act_ox = {ox : 0 for ox in self._oxideNames} # Oxide activities
         self.gamma = {ox : 1 for ox in self._oxideNames} # Gamma 
-        self.presLiq = {ox  : 1 for ox in self._oxideNames}  # liquid pressures 
+        self.presLiq = {ox  : 1 for ox in self._oxideNames}  # liquid pressures
+        self.presGas = {gas  : 1 for gas in self._gasNames}  # gas pressures 
         
         '''
         Import standard data values
@@ -105,6 +106,15 @@ class system():
             self.abEl['Na'] = self.molOx['Na2O'] * 2 * self._avog
             self.abEl['K']  = self.molOx['K2O']  * 2 * self._avog 
 
+        ''' Initial weight of melt so that weight% vaporized can be calculated later '''
+        self.mass = 0
+        for element in self.abEl:
+            for oxide in self._mwOxides:
+                if element in oxide:
+                    if element in ['Al','Na','K']:
+                        self.mass += 0.5 * self.abEl[element] * self._mwOxides[oxide]
+                    elif oxide != 'Fe2O3':
+                        self.mass += self.abEl[element] * self._mwOxides[oxide]
 
         ''' Renomarlizing the abundances ''' 
         # Total atomic abundance of all the elements (except 0)
@@ -120,4 +130,4 @@ class system():
                             self.abETot_ox for el in self.abEl} 
         
         # Relative abundance of the metals per atom                         
-        self.fAbAtom = {el : self.abEl[el] / self.abETot_ox for el in self.abEl} 
+        self.fAbAtom = {el : self.abEl[el] / self.abETot for el in self.abEl} 

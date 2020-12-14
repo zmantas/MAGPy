@@ -5,7 +5,7 @@ class melt_activity():
     Calculates the activity of the oxides in the melt for a given composition
     and temperature using IMCC.
     '''
-    def __init__(self,T,system):
+    def __init__(self,sim):
         
         '''
         The equilibrium constants for each of the relevant oxide pseudospecies
@@ -25,7 +25,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['MG1'] = 'MgSiO3'
-        self.K_pseudo['MG1'] = 10**( 0.42 + 2329/T)
+        self.K_pseudo['MG1'] = 10**( 0.42 + 2329/sim.T)
 
         '''
         2MgO(liq) + SiO2(liq) = Mg2SiO4(liq)
@@ -34,7 +34,7 @@ class melt_activity():
          -log10K(SiO2)  =  15.04 - 66906/T
         '''
         self.name_pseudo['MG2'] = 'Mg2SiO4'
-        self.K_pseudo['MG2'] = 10**(- 0.94 + 7434/T)
+        self.K_pseudo['MG2'] = 10**(- 0.94 + 7434/sim.T)
 
         '''
         MgO(liq) + Al2O3(liq) = MgAl2O4(liq)
@@ -43,7 +43,7 @@ class melt_activity():
         -log10K(Al2O3) = 23.68 - 108134/T
         '''
         self.name_pseudo['MG3'] = 'MgAl2O4'
-        self.K_pseudo['MG3'] = 10**(1.18 + 464/T)
+        self.K_pseudo['MG3'] = 10**(1.18 + 464/sim.T)
 
         '''
         MgO(liq) + TiO2(liq) = MgTiO3(liq)
@@ -52,7 +52,7 @@ class melt_activity():
         -log10K(TiO2) = 13.36 - 66313/T
         '''
         self.name_pseudo['MG4'] = 'MgTiO3'
-        self.K_pseudo['MG4'] = 10**(- 0.13 + 3246/T)
+        self.K_pseudo['MG4'] = 10**(- 0.13 + 3246/sim.T)
 
         '''
         MgO(liq) + 2TiO2(liq) = MgTi2O5(liq)
@@ -61,7 +61,7 @@ class melt_activity():
         -2log10(TiO2) = 26.72 - 132626/T
         '''
         self.name_pseudo['MG5'] = 'MgTi2O5'
-        self.K_pseudo['MG5'] = 10**(0.51 + 2845/T)
+        self.K_pseudo['MG5'] = 10**(0.51 + 2845/sim.T)
 
         '''
         2MgO(liq) + TiO2(liq) = Mg2TiO4(liq)
@@ -70,7 +70,7 @@ class melt_activity():
         -log10K(TiO2) = 13.36 - 66313/T
         '''
         self.name_pseudo['MG6'] = 'Mg2TiO4'
-        self.K_pseudo['MG6'] = 10**(0.67 + 3812/T)
+        self.K_pseudo['MG6'] = 10**(0.67 + 3812/sim.T)
 
         '''
         2MgO(liq) + 2Al2O3(liq) + 5SiO2(liq) = Mg2Al4Si5O18(liq)
@@ -89,7 +89,7 @@ class melt_activity():
         -2log10K(SiO2) = 30.08 - 133812/T
         '''
         self.name_pseudo['AL1'] = 'Al6Si2O13'
-        self.K_pseudo['AL1'] = 10**(- 2.94 + 9375/T)
+        self.K_pseudo['AL1'] = 10**(- 2.94 + 9375/sim.T)
 
         '''
         CaO(liq) + Al2O3(liq) = CaAl2O4(liq)
@@ -98,7 +98,7 @@ class melt_activity():
         -log10K(Al2O3) = 23.68 - 108134/T
         '''
         self.name_pseudo['CA1'] = 'CaAl2O4'
-        self.K_pseudo['CA1'] = 10**(- 1.89 + 10060/T)
+        self.K_pseudo['CA1'] = 10**(- 1.89 + 10060/sim.T)
 
         '''
         CaO(liq) + 2Al2O3(liq) = CaAl4O7(liq)
@@ -107,7 +107,7 @@ class melt_activity():
         -2log10K(Al2O3) = 47.36 - 216268/T
         '''
         self.name_pseudo['CA2'] = 'CaAl4O7'
-        self.K_pseudo['CA2'] = 10**(- 0.59 + 9713/T)
+        self.K_pseudo['CA2'] = 10**(- 0.59 + 9713/sim.T)
 
         '''
         12CaO(liq) + 7Al2O3(liq) = Ca12Al14O33(liq)
@@ -116,7 +116,7 @@ class melt_activity():
         -7log10K(Al2O3) = 165.76 - 756938/T
         '''
         self.name_pseudo['CA3'] = 'Ca12Al14O33'
-        self.K_pseudo['CA3'] = 10**(-6.30 + 72239/T)
+        self.K_pseudo['CA3'] = 10**(-6.30 + 72239/sim.T)
 
         '''
         CaO(liq) + SiO2(liq) = CaSiO3(liq)
@@ -125,7 +125,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['CA4'] = 'CaSiO3'
-        self.K_pseudo['CA4'] = 10**(0.54 + 5568/T)
+        self.K_pseudo['CA4'] = 10**(0.54 + 5568/sim.T)
 
         '''
         CaO(liq) + Al2O3(liq) + 2SiO2(liq) = CaAl2Si2O8(liq)
@@ -135,7 +135,7 @@ class melt_activity():
         -2log10(SiO2) = 30.08 - 133812/T
         '''
         self.name_pseudo['CA5'] = 'CaAl2Si2O8'
-        self.K_pseudo['CA5'] = 10**(2.63 + 5326/T)
+        self.K_pseudo['CA5'] = 10**(2.63 + 5326/sim.T)
 
         '''
         CaO(liq) + MgO(liq) + 2SiO2(liq) = CaMgSi2O6(liq)
@@ -145,7 +145,7 @@ class melt_activity():
         -2log10K(SiO2) = 30.08 - 133812/T
         '''
         self.name_pseudo['CA6'] = 'CaMgSi2O6'
-        self.K_pseudo['CA6'] = 10**(1.46 + 8485/T)
+        self.K_pseudo['CA6'] = 10**(1.46 + 8485/sim.T)
 
         '''
         2CaO(liq) + MgO(liq) + 2SiO2(liq) = Ca2MgSi2O7(liq)
@@ -155,7 +155,7 @@ class melt_activity():
         -2log10K(SiO2) = 30.08 - 133812/T
         '''
         self.name_pseudo['CA7'] = 'Ca2MgSi2O7'
-        self.K_pseudo['CA7'] = 10**(0.63 + 15327/T)
+        self.K_pseudo['CA7'] = 10**(0.63 + 15327/sim.T)
 
         '''
         2CaO(liq) + Al2O3(liq) + SiO2(liq) = Ca2Al2SiO7(liq)
@@ -165,7 +165,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['CA8'] = 'Ca2Al2SiO7'
-        self.K_pseudo['CA8'] = 10**(2.01 + 10710/T)
+        self.K_pseudo['CA8'] = 10**(2.01 + 10710/sim.T)
 
         '''
         CaO(liq) + TiO2(liq) = CaTiO3(liq)
@@ -174,7 +174,7 @@ class melt_activity():
         -log10K(TiO2) = 13.36 - 66313/T
         '''
         self.name_pseudo['CA9'] = 'CaTiO3'
-        self.K_pseudo['CA9'] = 10**(- 0.08 + 7055/T)
+        self.K_pseudo['CA9'] = 10**(- 0.08 + 7055/sim.T)
 
         '''
         2CaO(liq) + SiO2(liq) = Ca2SiO4(liq)
@@ -183,7 +183,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['CA10'] = 'Ca2SiO4'
-        self.K_pseudo['CA10'] = 10**(0.63 + 8416/T)
+        self.K_pseudo['CA10'] = 10**(0.63 + 8416/sim.T)
 
         '''
         CaO(liq) + TiO2(liq) + SiO2(liq) = CaTiSiO5(liq)
@@ -193,7 +193,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['CA11'] = 'CaTiSiO5'
-        self.K_pseudo['CA11'] = 10**(- 0.18 + 10071/T)
+        self.K_pseudo['CA11'] = 10**(- 0.18 + 10071/sim.T)
 
         '''
         CaO(liq) + 6Al2O3(liq) = CaAl12O19(liq)
@@ -202,7 +202,7 @@ class melt_activity():
         -6log10K(Al2O3) = 142.08 - 648804/T
         '''
         self.name_pseudo['CA12'] = 'CaAl12O19'
-        self.K_pseudo['CA12'] = 10**(- 3.79 + 22612/T)
+        self.K_pseudo['CA12'] = 10**(- 3.79 + 22612/sim.T)
 
         '''
         FeO(liq) + TiO2(liq) = FeTiO3(liq)
@@ -211,7 +211,7 @@ class melt_activity():
         -log10K(TiO2) = 13.36 - 66313/T
         '''
         self.name_pseudo['FE1'] = 'FeTiO3'
-        self.K_pseudo['FE1'] = 10**(- 0.51 + 3569/T)
+        self.K_pseudo['FE1'] = 10**(- 0.51 + 3569/sim.T)
         # print('YOO',self.K_pseudo['FE1'])
 
         '''
@@ -221,7 +221,7 @@ class melt_activity():
         -log10K(SiO2) = 15.04 - 66906/T
         '''
         self.name_pseudo['FE2'] = 'Fe2SiO4'
-        self.K_pseudo['FE2'] = 10**(- 0.63 + 3103/T)
+        self.K_pseudo['FE2'] = 10**(- 0.63 + 3103/sim.T)
 
         '''
         FeO(liq) + Al2O3(liq) = FeAl2O4(liq)
@@ -230,105 +230,105 @@ class melt_activity():
         -log10K(Al2O3) = 23.68 - 108134/T
         '''
         self.name_pseudo['FE3'] = 'FeAl2O4'
-        self.K_pseudo['FE3'] = 10**(- 1.76 + 5692/T)
+        self.K_pseudo['FE3'] = 10**(- 1.76 + 5692/sim.T)
 
         '''
         FeO (liq) + Fe2O3 (liq) = Fe3O4 (liq)
         Fe3O4 data from Barin 1995
         '''
         self.name_pseudo['FE4'] = 'Fe3O4'
-        self.K_pseudo['FE4'] = 10**(-4.385894544e-1 + 4.3038155175436e3/T\
-                                   -3.1050205223386055e6/T**2.0)
+        self.K_pseudo['FE4'] = 10**(-4.385894544e-1 + 4.3038155175436e3/sim.T\
+                                   -3.1050205223386055e6/sim.T**2.0)
 
         '''
         Na2O(liq) + SiO2(liq) = Na2SiO3(liq)
         '''
         self.name_pseudo['NA1'] = 'Na2SiO3'
-        self.K_pseudo['NA1'] = 10**(- 1.33 + 13870/T)
+        self.K_pseudo['NA1'] = 10**(- 1.33 + 13870/sim.T)
 
         '''
         Na2O(liq) + 2SiO2(liq) = Na2Si2O5(liq)
         '''
         self.name_pseudo['NA2'] = 'Na2Si2O5'
-        self.K_pseudo['NA2'] = 10**(- 1.39 + 15350/T)
+        self.K_pseudo['NA2'] = 10**(- 1.39 + 15350/sim.T)
 
         ''' 
         0.5 Na2O(liq) + 0.5 Al2O3(liq) + SiO2(liq) = NaAlSiO4(liq)
         '''
         self.name_pseudo['NA3'] = 'NaAlSiO4'
-        self.K_pseudo['NA3'] = 10**(0.65 + 6997/T)
+        self.K_pseudo['NA3'] = 10**(0.65 + 6997/sim.T)
 
         '''
         0.5 Na2O(liq) + 0.5 Al2O3(liq) + 3SiO2(liq) = NaAlSi3O8(liq)
         '''
         self.name_pseudo['NA4'] = 'NaAlSi3O8'
-        self.K_pseudo['NA4'] = 10**(1.29 + 8788/T)
+        self.K_pseudo['NA4'] = 10**(1.29 + 8788/sim.T)
 
         '''
         0.5 Na2O(liq) + 0.5 Al2O3(liq) = NaAlO2(liq)
         '''
         self.name_pseudo['NA5'] = 'NaAlO2'
-        self.K_pseudo['NA5'] = 10**(0.55 + 3058/T)
+        self.K_pseudo['NA5'] = 10**(0.55 + 3058/sim.T)
 
         '''
         Na2O(liq) + TiO2(liq) = Na2TiO3(liq)
         '''
         self.name_pseudo['NA6'] = 'Na2TiO3'
-        self.K_pseudo['NA6'] = 10**(- 1.38 + 15445/T)
+        self.K_pseudo['NA6'] = 10**(- 1.38 + 15445/sim.T)
 
         '''
         0.5 Na2O(liq) + 0.5 Al2O3(liq) + 2SiO2(liq) = NAAlSi2O6(liq)
         '''
         self.name_pseudo['NA7'] = 'NaAlSi2O6'
-        self.K_pseudo['NA7'] = 10**(- 1.02 + 9607/T)
+        self.K_pseudo['NA7'] = 10**(- 1.02 + 9607/sim.T)
 
         '''
         K2O(liq) + SiO2(liq) = K2SiO3(liq)
         '''
         self.name_pseudo['K1'] = 'K2SiO3'
-        self.K_pseudo['K1'] = 10**(0.2692 + 12735/T)
+        self.K_pseudo['K1'] = 10**(0.2692 + 12735/sim.T)
 
         '''
         K2O(liq) + 2SiO2(liq) = K2Si2O5(liq)
         '''
         self.name_pseudo['K2'] = 'K2Si2O5'
-        self.K_pseudo['K2'] = 10**(0.3462 + 14685/T)
+        self.K_pseudo['K2'] = 10**(0.3462 + 14685/sim.T)
 
         '''
         0.5 K2O(liq) + 0.5 Al2O3(liq) + SiO2(liq) = KAlSiO4(liq)
         '''
         self.name_pseudo['K3'] = 'KAlSiO4'
-        self.K_pseudo['K3'] = 10**(0.97 + 8675/T)
+        self.K_pseudo['K3'] = 10**(0.97 + 8675/sim.T)
 
         '''
         0.5 K2O(liq) + 0.5 Al2O3(liq) + 3SiO2(liq) = KAlSi3O8(liq)
         '''
         self.name_pseudo['K4'] = 'KAlSi3O8'
-        self.K_pseudo['K4'] = 10**(1.11 + 11229/T)
+        self.K_pseudo['K4'] = 10**(1.11 + 11229/sim.T)
 
         '''
         0.5 K2O(liq) + 0.5 Al2O3(liq) = KAlO2(liq)
         '''
         self.name_pseudo['K5'] = 'KAlO2'
-        self.K_pseudo['K5'] = 10**(0.72 + 4679/T)
+        self.K_pseudo['K5'] = 10**(0.72 + 4679/sim.T)
 
         '''
         0.5 K2O(liq) + 0.5 Al2O3(liq) + 2SiO2(liq) = KAlSi2O6(liq)
         '''
         self.name_pseudo['K6'] = 'KAlSi2O6'
-        self.K_pseudo['K6'] = 10**(1.53 + 10125/T)
+        self.K_pseudo['K6'] = 10**(1.53 + 10125/sim.T)
 
         '''
         K2O(liq) + 4SiO2 (liq) = K2Si4O9 (liq)
         '''
         self.name_pseudo['K7'] = 'K2Si4O9'
-        self.K_pseudo['K7'] = 10**(-0.9648 + 17572/T)
+        self.K_pseudo['K7'] = 10**(-0.9648 + 17572/sim.T)
 
         '''
         0.5K2O(liq) + CaO(liq) + 0.5Al2O3(liq) + 2SiO2(liq)=KCaAlSi2O7(liq)
         '''
         self.name_pseudo['K8'] = 'KCaAlSi2O7'
-        self.K_pseudo['K8'] = 10**(4.2983 + 17037/T)
+        self.K_pseudo['K8'] = 10**(4.2983 + 17037/sim.T)
 
     def activities_melt_pseudo(self,actOx):
         '''
