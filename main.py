@@ -3,38 +3,36 @@ import sys
 from tqdm import tqdm
 
 # Local modules
-from melt_vapor_system import system
-from melt_activity import melt_activity
-from vapor_pressure import vapor_pressure
-from vaporiser import vaporise
+from library.melt_vapor_system import system
+from library.melt_activity import melt_activity
+from library.vapor_pressure import vapor_pressure
+from library.vaporiser import vaporise
+import library.print_functions as print_functions
 
 
 def main():
 
-    ''' 
-    Setting initial values 
-    '''
-
-    # Temperature for which the calculations will be done '''
+    # Setting initial values 
     T = 2200 # Temperature of magma in Kelvin
-    V = 0.9 
+    V = 0.9  # Set desired vaporisation fraction (must be < 1)
 
     # File names
-    # input_fname = 'input/BSE-initial.dat'
     input_fname = 'input/ic_Komatiite.dat'
     output_fname = 'output/MAGMA.OUT'
 
-    '''
-    Initialising classes
-    '''
+    # Initialising classes and trackers
     sim = system(input_fname,T)
     melt = melt_activity(sim)
     vapor = vapor_pressure(sim)
     vap = 0
     it = 0
 
+    # Printing initial parameters
+    print_functions.print_init(sim,output_fname)
+
+    # tqdm progres bar
     with tqdm(total=1) as pbar:
-        pbar.set_description(f'Vaporization percentage (stops at {V*100}):')
+        pbar.set_description(f'Vaporization percentage (stops at {int(V*100)}%)')
 
         while vap < V and it <= 1e5:
 
@@ -56,6 +54,8 @@ def main():
             pbar.update(vap - pbar.n)
 
     pbar.close()
+
+    print_functions.print_results(sim,melt,vap,output_fname)
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -24,11 +24,15 @@ class system():
 
         self._gasNames = 'SiO','O2','MgO','Fe','Ca','Al','Ti','Na','K'
 
+        # Initialising variables for future use 
         self.act_ox = {ox : 0 for ox in self._oxideNames} # Oxide activities
         self.gamma = {ox : 1 for ox in self._oxideNames} # Gamma 
         self.presLiq = {ox  : 1 for ox in self._oxideNames}  # liquid pressures
-        self.presGas = {gas  : 1 for gas in self._gasNames}  # gas pressures 
-        
+        self.presGas = {gas  : 1 for gas in self._gasNames}  # gas pressures         
+        self.totPres = 0
+        self.gasMoleFrac = {}
+        self.massFrac = 0
+
         '''
         Import standard data values
         '''

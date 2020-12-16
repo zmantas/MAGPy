@@ -13,10 +13,10 @@ def vaporise(sim,vapor):
     # Added seperatly due to absence from original abundance list
     tot_gasPres['O'] = sim.presGas['O'] + sim.presGas['O2']  
     tot_gasPres['EnE'] = sim.presGas['EnE'].copy() 
-    totPres = sum(tot_gasPres.values()) 
+    sim.totPres = sum(tot_gasPres.values()) 
 
     # Gas mole fraction (P/Ptot)
-    gasMoleFrac = {gas : sim.presGas[gas]/totPres for gas in sim.presGas}
+    sim.gasMoleFrac = {gas : sim.presGas[gas]/sim.totPres for gas in sim.presGas}
     
     # Calculating total mole fractions of each element in the gas
     n_tot = sum(vapor.n_el.values())
@@ -66,7 +66,7 @@ def vaporise(sim,vapor):
                     massVapo += 0.5 * sim.abEl[element] * sim._mwOxides[oxide]
                 elif oxide != 'Fe2O3':
                     massVapo += sim.abEl[element] * sim._mwOxides[oxide]
-    massFrac = (sim.mass-massVapo)/sim.mass
+    sim.massFrac = (sim.mass-massVapo)/sim.mass
 
     # Renormalize the abundances 
     fAbAtom_tot = sum(sim.fAbAtom.values()) # Mole fraction of elemens
