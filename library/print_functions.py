@@ -3,7 +3,7 @@
 def print_init(sim,output_fname):
 
     ''' Opening the file '''
-    print(f'Writing output to: {output_fname}')
+    # print(f'Writing output to: {output_fname}')
     file = open(output_fname, "w")
 
     file.write(f'INITIAL PARAMETERS AND COMPOSITION\n\n')
@@ -75,3 +75,11 @@ def print_results(sim,melt,vap,output_fname):
     file.write(f'Weight percent = {sim.massFrac:.6e}\n')
 
     file.close()
+
+# end print_results()
+
+def print_temp_var():
+    pass
+
+
+# end print_temp_var()
