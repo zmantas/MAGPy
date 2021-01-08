@@ -38,6 +38,7 @@ K2O   = 2.221106e-04
 
 Relative atomic abundances of metals
  
+<<<<<<< HEAD
 Si = 3.894124e-01
 Mg = 4.629546e-01
 Al = 4.762208e-02
@@ -46,3 +47,155 @@ Fe = 5.837471e-02
 Ca = 3.430845e-02
 Na = 5.748408e-03
 K  = 4.322711e-04
+=======
+Si = 4.354498e-01
+Mg = 3.666144e-01
+Al = 4.402033e-02
+Ti = 1.669286e-03
+Fe = 8.905144e-02
+Ca = 5.388776e-02
+Na = 8.245543e-03
+K  = 1.061502e-03
+
+FINAL COMPOSITION
+
+Activity coefficients (G) of oxides in the melt
+ 
+SiO2= 1.962929e-03
+MgO = 0.000000e+00
+Al2O3= 1.656485e-02
+TiO2= 9.107775e-03
+Fe2O3= 1.000000e+00
+FeO = 0.000000e+00
+CaO = 1.440851e-01
+Na2O= 0.000000e+00
+K2O = 0.000000e+00
+
+Activities (A) of Species in the melt
+ 
+SiO2         2.783595e-04
+MgO          0.000000e+00
+Al2O3        4.588609e-03
+TiO2         1.841637e-04
+Fe2O3        0.000000e+00
+FeO          0.000000e+00
+CaO          8.082636e-02
+Na2O         0.000000e+00
+K2O          0.000000e+00
+MgSiO3       0.000000e+00
+Mg2SiO4      0.000000e+00
+MgAl2O4      0.000000e+00
+MgTiO3       0.000000e+00
+MgTi2O5      0.000000e+00
+Mg2TiO4      0.000000e+00
+Mg2Al4Si5O18 0.000000e+00
+Al6Si2O13    1.568986e-13
+CaAl2O4      1.786329e-01
+CaAl4O7      1.137405e-02
+Ca12Al14O33  1.143701e-03
+CaSiO3       2.648916e-02
+CaAl2Si2O8   3.231137e-06
+CaMgSi2O6    0.000000e+00
+Ca2MgSi2O7   0.000000e+00
+Ca2Al2SiO7   6.303402e-02
+CaTiO3       1.993311e-02
+Ca2SiO4      5.189992e-02
+CaTiSiO5     1.035358e-04
+CaAl12O19    2.321780e-09
+FeTiO3       0.000000e+00
+Fe2SiO4      0.000000e+00
+FeAl2O4      0.000000e+00
+Fe3O4        0.000000e+00
+Na2SiO3      0.000000e+00
+Na2Si2O5     0.000000e+00
+NaAlSiO4     0.000000e+00
+NaAlSi3O8    0.000000e+00
+NaAlO2       0.000000e+00
+Na2TiO3      0.000000e+00
+NaAlSi2O6    0.000000e+00
+K2SiO3       0.000000e+00
+K2Si2O5      0.000000e+00
+KAlSiO4      0.000000e+00
+KAlSi3O8     0.000000e+00
+KAlO2        0.000000e+00
+KAlSi2O6     0.000000e+00
+K2Si4O9      0.000000e+00
+KCaAlSi2O7   0.000000e+00
+
+Gas partial pressures (P) in vapor 
+
+O        1.426559e-06
+O2       2.774119e-07
+SiO      7.379780e-07
+Si       2.496836e-13
+SiO2     1.734409e-09
+MgO      0.000000e+00
+Mg       0.000000e+00
+Al       4.827518e-10
+AlO      9.576252e-10
+AlO2     3.542905e-15
+Al2O     6.308404e-13
+Al2O2    5.816529e-14
+Ti       4.789167e-15
+TiO      5.790708e-11
+TiO2     7.370145e-10
+Fe       0.000000e+00
+FeO      0.000000e+00
+Ca       1.242144e-06
+CaO      9.799165e-09
+NaCat    0.000000e+00
+KCat     0.000000e+00
+Na       0.000000e+00
+NaO      0.000000e+00
+Na2      0.000000e+00
+Na2O     0.000000e+00
+NaCat    0.000000e+00
+K        0.000000e+00
+KO       0.000000e+00
+K2       0.000000e+00
+K2O      0.000000e+00
+KCat     0.000000e+00
+e-       0.000000e+00
+
+Total    3.697863e-06
+
+Gas mole fractions (X) in vapor 
+
+O        3.857794e-01
+O2       7.501952e-02
+SiO      1.995688e-01
+Si       6.752104e-08
+SiO2     4.690300e-04
+MgO      0.000000e+00
+Mg       0.000000e+00
+Al       1.305489e-04
+AlO      2.589672e-04
+AlO2     9.580952e-10
+Al2O     1.705959e-07
+Al2O2    1.572943e-08
+Ti       1.295117e-09
+TiO      1.565961e-05
+TiO2     1.993082e-04
+Fe       0.000000e+00
+FeO      0.000000e+00
+Ca       3.359086e-01
+CaO      2.649953e-03
+NaCat    0.000000e+00
+KCat     0.000000e+00
+Na       0.000000e+00
+NaO      0.000000e+00
+Na2      0.000000e+00
+Na2O     0.000000e+00
+NaCat    0.000000e+00
+K        0.000000e+00
+KO       0.000000e+00
+K2       0.000000e+00
+K2O      0.000000e+00
+KCat     0.000000e+00
+e-       0.000000e+00
+
+Fraction of magma that is vaporized
+
+Vap. fraction  = 9.001187e-01
+Weight percent = 8.971031e-01
+>>>>>>> 776f57bd8bd3c7d63a5641bdd4ba54d36c2f55e6

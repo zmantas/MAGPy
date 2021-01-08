@@ -1,6 +1,7 @@
-# Jupyter notebooks
+# Ignored directories
 /jupyter_notebooks
 /legacy_fortran_code
+/output/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
