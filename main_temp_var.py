@@ -48,10 +48,12 @@ def calc(T,V,input_fname,output_fname,file,first=False):
     # pbar.close()
 
     if first:
+        file.write(f'T,')
         for ox in sim.gasMoleFrac:
             file.write(f'{ox},')
         file.write('\n')
 
+    file.write(f'{T},')
     for ox in sim.gasMoleFrac:
         file.write(f'{sim.gasMoleFrac[ox]},')
     file.write('\n')
