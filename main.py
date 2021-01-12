@@ -14,7 +14,7 @@ def main():
 
     # Setting initial values 
     T = 2200 # Temperature of magma in Kelvin
-    V = 0.9  # Set desired vaporisation fraction (must be < 1)
+    V = 0.0  # Set desired vaporisation fraction (must be < 1)
 
     # File names
     input_fname = 'input/ic_Komatiite.dat'
@@ -34,7 +34,7 @@ def main():
     with tqdm(total=1) as pbar:
         pbar.set_description(f'Vaporization percentage (stops at {int(V*100)}%)')
 
-        while vap < V and it <= 1e5:
+        while vap < V and it <= 1e5 or it == 0:
 
             # Calculating activities and partial pressures
             melt.melt_activity_calculation(sim)
