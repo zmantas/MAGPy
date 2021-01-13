@@ -54,10 +54,8 @@ def print_results(sim,melt,vap,output_fname):
     file.write(f'{"O2":<8} {sim.presGas["O2"]:.6e}\n')
     for name_el in sim.abEl:  
         for gas in sim.presGas:
-            if name_el in gas and not gas in ['NaCat','KCat']:
+            if name_el in gas:
                 file.write(f'{gas:<8} {sim.presGas[gas]:.6e}\n')
-    file.write(f'{"NaCat":<8} {sim.presGas["NaCat"]:.6e}\n')
-    file.write(f'{"KCat":<8} {sim.presGas["KCat"]:.6e}\n')
     file.write(f'{"e-":<8} {sim.presGas["EnE"]:.6e}\n')
     file.write(f'\n{"Total":<8} {sim.totPres:.6e}\n')
 
@@ -67,16 +65,31 @@ def print_results(sim,melt,vap,output_fname):
     file.write(f'{"O2":<8} {sim.gasMoleFrac["O2"]:.6e}\n')
     for name_el in sim.abEl:  
         for gas in sim.gasMoleFrac:
-            if name_el in gas and not gas in ['NaCat','KCat']:
+            if name_el in gas:
                 file.write(f'{gas:<8} {sim.gasMoleFrac[gas]:.6e}\n')
-    file.write(f'{"NaCat":<8} {sim.gasMoleFrac["NaCat"]:.6e}\n')
-    file.write(f'{"KCat":<8} {sim.gasMoleFrac["KCat"]:.6e}\n')
     file.write(f'{"e-":<8} {sim.gasMoleFrac["EnE"]:.6e}\n')
 
     ''' Vaporized fractions '''
     file.write('\nFraction of magma that is vaporized\n\n')
     file.write(f'Vap. fraction  = {vap:.6e}\n')
     file.write(f'Weight percent = {sim.massFrac:.6e}\n')
+
+    file.close()
+
+def print_resultsEle(sim,melt,vap,outputEle_fname):
+
+    file = open(outputEle_fname, "w")
+
+    file.write(f'#Total Vapor Pressure and mole fractions\n')
+
+    file.write(f'{"Pressure":<8} {sim.totPres:.6e}\n')
+    file.write(f'{"O":<8} {sim.gasMoleFrac["O"]:.6e}\n')
+    file.write(f'{"O2":<8} {sim.gasMoleFrac["O2"]:.6e}\n')
+    for name_el in sim.abEl:  
+        for gas in sim.gasMoleFrac:
+            if name_el in gas:
+                file.write(f'{gas:<8} {sim.gasMoleFrac[gas]:.6e}\n')
+    file.write(f'{"e-":<8} {sim.gasMoleFrac["EnE"]:.6e}\n')
 
     file.close()
 
