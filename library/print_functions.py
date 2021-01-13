@@ -80,6 +80,7 @@ def print_results(sim,melt,vap,output_fname):
 
     file.close()
 
+
 def print_resultsEle(sim,melt,vap,outputEle_fname):
 
     file = open(outputEle_fname, "w")
@@ -91,10 +92,12 @@ def print_resultsEle(sim,melt,vap,outputEle_fname):
     file.write(f'{"O2":<8} {sim.gasMoleFrac["O2"]:.6e}\n')
     for name_el in sim.abEl:  
         for gas in sim.gasMoleFrac:
-            if name_el in gas:
+            if name_el in gas and not gas in ['NaCat','KCat']:
                 file.write(f'{gas:<8} {sim.gasMoleFrac[gas]:.6e}\n')
     file.write(f'{"e-":<8} {sim.gasMoleFrac["EnE"]:.6e}\n')
-
+    file.write(f'{"NaCat":<8} {sim.gasMoleFrac["NaCat"]:.6e}\n')
+    file.write(f'{"KCat":<8} {sim.gasMoleFrac["KCat"]:.6e}\n')
+    
     file.close()
 
 # end print_results()
