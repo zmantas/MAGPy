@@ -1,1 +1,1 @@
-# MAGPy
+# MAGPy for use with VULCAN
