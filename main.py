@@ -40,7 +40,7 @@ def main():
     with tqdm(total=1) as pbar:
         pbar.set_description(f'Vaporization percentage (stops at {int(V*100)}%)')
 
-        while vap < V and it <= 1e5:
+        while vap < V and it <= 1e5 or it == 0:
 
             # Calculating activities and partial pressures
             melt.melt_activity_calculation(sim)
